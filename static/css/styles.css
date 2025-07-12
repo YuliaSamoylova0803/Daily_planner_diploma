@@ -1,0 +1,118 @@
+/* static/css/mailing_service/styles.css */
+:root {
+    --mint-color: #98ff98;
+    --light-mint: #e0f7e0;
+    --yellow-color: #fffacd;
+    --light-yellow: #fffde7;
+    --dark-mint: #5dc1a1;
+}
+
+/* Фоновые цвета */
+.bg-mint {
+    background-color: var(--mint-color) !important;
+}
+
+.bg-light-mint {
+    background-color: var(--light-mint) !important;
+}
+
+.bg-yellow {
+    background-color: var(--yellow-color) !important;
+}
+
+.bg-light-yellow {
+    background-color: var(--light-yellow) !important;
+}
+
+/* Кнопки */
+.btn-mint {
+    background-color: var(--dark-mint) !important;
+    color: white !important;
+    border-color: var(--dark-mint) !important;
+}
+
+.btn-mint:hover {
+    background-color: #4aa789 !important;
+    border-color: #4aa789 !important;
+    color: white !important;
+}
+
+/* Навигация */
+.navbar-brand {
+    font-weight: 700 !important;
+    color: var(--dark-mint) !important;
+}
+
+.nav-link {
+    color: #5a5a5a !important;
+}
+
+.nav-link:hover {
+    color: var(--dark-mint) !important;
+}
+
+/* Карточки статистики */
+.stat-card {
+    border-radius: 10px !important;
+    padding: 2rem !important;
+    text-align: center !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+    margin-bottom: 2rem !important;
+}
+
+.stat-value {
+    font-size: 3rem !important;
+    font-weight: 700 !important;
+    color: var(--dark-mint) !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.stat-label {
+    font-size: 1.2rem !important;
+    color: #5a5a5a !important;
+    margin-bottom: 0 !important;
+}
+
+/* Подвал */
+footer {
+    background: linear-gradient(135deg, var(--mint-color) 0%, var(--yellow-color) 100%) !important;
+    padding: 2rem 0 !important;
+}
+/* Мятный цвет (для кнопки "Посмотреть") */
+.btn-mint {
+    background-color: #98FF98;  /* яркий мятный */
+    border-color: #98FF98;
+    color: #000;  /* чёрный текст для контраста */
+}
+.btn-mint:hover {
+    background-color: #7AE07A;  /* чуть темнее при наведении */
+    border-color: #7AE07A;
+}
+
+/* Лимонный цвет (для кнопки "Редактировать") */
+.btn-lemon {
+    background-color: #FFFACD;  /* светлый лимонный */
+    border-color: #FFFACD;
+    color: #000;
+}
+.btn-lemon:hover {
+    background-color: #FFEE99;  /* ярче при наведении */
+    border-color: #FFEE99;
+}
+
+/* Бледно-голубой (для кнопки "Удалить") */
+.btn-pale-blue {
+    background-color: #B0E0E6;  /* классический бледно-голубой */
+    border-color: #B0E0E6;
+    color: #000;
+}
+.btn-pale-blue:hover {
+    background-color: #9BC4D2;  /* чуть темнее при наведении */
+    border-color: #9BC4D2;
+}
+.btn-mint:hover, .btn-lemon:hover, .btn-pale-blue:hover {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.btn-mint, .btn-lemon, .btn-pale-blue {
+    transition: all 0.3s ease;
+}
