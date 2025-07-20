@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
-from django.conf.global_settings import AUTH_USER_MODEL
+from django.conf.global_settings import AUTH_USER_MODEL, LOGIN_REDIRECT_URL, LOGOUT_REDIRECT_URL, LOGIN_URL
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     "users",
+    "notes",
 ]
 
 MIDDLEWARE = [
@@ -136,8 +137,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Настройки для медиа файлов (загружаемые пользователями)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
 EMAIL_HOST = os.getenv('EMAIL_HOST')
@@ -151,3 +152,7 @@ SERVER_EMAIL = EMAIL_HOST_USER
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 AUTH_USER_MODEL = "users.User"
+
+LOGIN_REDIRECT_URL = 'notes:base'
+LOGOUT_REDIRECT_URL = 'notes:base'
+LOGIN_URL = 'users/login/'
