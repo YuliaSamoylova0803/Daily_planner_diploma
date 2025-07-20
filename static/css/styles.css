@@ -1,118 +1,171 @@
-/* static/css/mailing_service/styles.css */
 :root {
-    --mint-color: #98ff98;
-    --light-mint: #e0f7e0;
-    --yellow-color: #fffacd;
-    --light-yellow: #fffde7;
-    --dark-mint: #5dc1a1;
+  --primary-color: #4361ee;
+  --secondary-color: #3f37c9;
+  --accent-color: #4cc9f0;
+  --light-color: #f8f9fa;
+  --dark-color: #212529;
+  --personal-color: #7209b7;
+  --work-color: #f72585;
 }
 
-/* Фоновые цвета */
-.bg-mint {
-    background-color: var(--mint-color) !important;
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f5f7fa;
+  color: var(--dark-color);
 }
 
-.bg-light-mint {
-    background-color: var(--light-mint) !important;
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
 }
 
-.bg-yellow {
-    background-color: var(--yellow-color) !important;
-}
-
-.bg-light-yellow {
-    background-color: var(--light-yellow) !important;
-}
-
-/* Кнопки */
-.btn-mint {
-    background-color: var(--dark-mint) !important;
-    color: white !important;
-    border-color: var(--dark-mint) !important;
-}
-
-.btn-mint:hover {
-    background-color: #4aa789 !important;
-    border-color: #4aa789 !important;
-    color: white !important;
-}
-
-/* Навигация */
 .navbar-brand {
-    font-weight: 700 !important;
-    color: var(--dark-mint) !important;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--primary-color) !important;
 }
 
-.nav-link {
-    color: #5a5a5a !important;
+.sidebar {
+  background: white;
+  box-shadow: 0 0 15px rgba(0,0,0,0.05);
+  height: 100vh;
+  position: sticky;
+  top: 0;
 }
 
-.nav-link:hover {
-    color: var(--dark-mint) !important;
+.sidebar .nav-link {
+  color: var(--dark-color);
+  border-radius: 8px;
+  margin-bottom: 5px;
+  font-weight: 500;
+  transition: all 0.3s;
 }
 
-/* Карточки статистики */
-.stat-card {
-    border-radius: 10px !important;
-    padding: 2rem !important;
-    text-align: center !important;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
-    margin-bottom: 2rem !important;
+.sidebar .nav-link:hover {
+  background-color: rgba(67, 97, 238, 0.1);
+  color: var(--primary-color);
 }
 
-.stat-value {
-    font-size: 3rem !important;
-    font-weight: 700 !important;
-    color: var(--dark-mint) !important;
-    margin-bottom: 0.5rem !important;
+.sidebar .nav-link.active {
+  background-color: var(--primary-color);
+  color: white !important;
 }
 
-.stat-label {
-    font-size: 1.2rem !important;
-    color: #5a5a5a !important;
-    margin-bottom: 0 !important;
+.sidebar .nav-link i {
+  margin-right: 10px;
+  width: 20px;
+  text-align: center;
 }
 
-/* Подвал */
-footer {
-    background: linear-gradient(135deg, var(--mint-color) 0%, var(--yellow-color) 100%) !important;
-    padding: 2rem 0 !important;
-}
-/* Мятный цвет (для кнопки "Посмотреть") */
-.btn-mint {
-    background-color: #98FF98;  /* яркий мятный */
-    border-color: #98FF98;
-    color: #000;  /* чёрный текст для контраста */
-}
-.btn-mint:hover {
-    background-color: #7AE07A;  /* чуть темнее при наведении */
-    border-color: #7AE07A;
+.main-content {
+  padding: 30px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.05);
+  margin-bottom: 30px;
 }
 
-/* Лимонный цвет (для кнопки "Редактировать") */
-.btn-lemon {
-    background-color: #FFFACD;  /* светлый лимонный */
-    border-color: #FFFACD;
-    color: #000;
-}
-.btn-lemon:hover {
-    background-color: #FFEE99;  /* ярче при наведении */
-    border-color: #FFEE99;
+.card {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+  margin-bottom: 20px;
 }
 
-/* Бледно-голубой (для кнопки "Удалить") */
-.btn-pale-blue {
-    background-color: #B0E0E6;  /* классический бледно-голубой */
-    border-color: #B0E0E6;
-    color: #000;
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
-.btn-pale-blue:hover {
-    background-color: #9BC4D2;  /* чуть темнее при наведении */
-    border-color: #9BC4D2;
+
+.personal-card {
+  border-left: 4px solid var(--personal-color);
 }
-.btn-mint:hover, .btn-lemon:hover, .btn-pale-blue:hover {
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+.work-card {
+  border-left: 4px solid var(--work-color);
 }
-.btn-mint, .btn-lemon, .btn-pale-blue {
-    transition: all 0.3s ease;
+
+.badge-personal {
+  background-color: var(--personal-color);
+}
+
+.badge-work {
+  background-color: var(--work-color);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-dropdown {
+  min-width: 250px;
+}
+
+.user-dropdown .dropdown-item {
+  padding: 8px 20px;
+}
+
+.user-dropdown .dropdown-header {
+  font-weight: 600;
+  padding: 10px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.date-badge {
+  background-color: var(--light-color);
+  color: var(--dark-color);
+  border-radius: 20px;
+  padding: 5px 15px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.search-box {
+  position: relative;
+}
+
+.search-box input {
+  padding-left: 40px;
+  border-radius: 20px;
+  border: 1px solid #eee;
+  background-color: #f8f9fa;
+}
+
+.search-box i {
+  position: absolute;
+  left: 15px;
+  top: 10px;
+  color: #6c757d;
+}
+
+@media (max-width: 992px) {
+  .sidebar {
+    height: auto;
+    position: relative;
+  }
+}
+.auth-container {
+   max-width: 500px;
+   margin: 50px auto;
+   padding: 30px;
+   border-radius: 10px;
+   box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+.auth-logo {
+   text-align: center;
+   margin-bottom: 30px;
 }
