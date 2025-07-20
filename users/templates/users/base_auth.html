@@ -1,0 +1,181 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Construction Diary | Личный и рабочий дневник{% endblock %}</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-2 px-0">
+                <div class="sidebar p-3">
+                    <div class="text-center mb-4">
+                        <h4 class="mb-0">Construction Diary</h4>
+                        <small class="text-muted">Личный дневник и рабочий ежедневник</small>
+                    </div>
+
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">
+                                <i class="fas fa-home"></i> Главная
+                            </a>
+                        </li>
+
+                        <!-- Личный дневник -->
+                        <li class="nav-item mt-3">
+                            <small class="text-muted ps-3">ЛИЧНЫЙ</small>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-book"></i> Записи
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-bullseye"></i> Цели
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-calendar-check"></i> Привычки
+                            </a>
+                        </li>
+
+                        <!-- Рабочий дневник -->
+                        <li class="nav-item mt-3">
+                            <small class="text-muted ps-3">РАБОЧИЙ</small>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-clipboard-list"></i> Журнал работ
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-file-contract"></i> Акты скрытых работ
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-project-diagram"></i> Проекты
+                            </a>
+                        </li>
+
+                        <!-- Общие -->
+                        <li class="nav-item mt-3">
+                            <small class="text-muted ps-3">ОБЩЕЕ</small>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-calendar-alt"></i> Календарь
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-chart-bar"></i> Статистика
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-10 px-0">
+                <!-- Top Navigation -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+                    <div class="container-fluid">
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+
+                        <div class="collapse navbar-collapse" id="navbarContent">
+                            <div class="search-box me-auto ms-3">
+                                <i class="fas fa-search"></i>
+                                <input type="text" class="form-control ps-4" placeholder="Поиск...">
+                            </div>
+
+                            <ul class="navbar-nav ms-auto">
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-bell"></i>
+                                        <span class="badge bg-danger rounded-pill">3</span>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><h6 class="dropdown-header">Уведомления</h6></li>
+                                        <li><a class="dropdown-item" href="#">Новая запись в журнале</a></li>
+                                        <li><a class="dropdown-item" href="#">Напоминание о встрече</a></li>
+                                        <li><a class="dropdown-item" href="#">Акт требует подписи</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-primary" href="#">Показать все</a></li>
+                                    </ul>
+                                </li>
+
+                                <li class="nav-item dropdown ms-2">
+                                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                        <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}https://via.placeholder.com/40{% endif %}" class="avatar me-2">
+                                        <span>{{ user.get_full_name|default:user.username }}</span>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end user-dropdown">
+                                        <li><h6 class="dropdown-header">Мой профиль</h6></li>
+                                        <li><a class="dropdown-item" href="{% url 'users:edit_profile' %}"><i class="fas fa-user me-2"></i> Профиль</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Настройки</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i> Выйти</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- Page Content -->
+                <div class="container-fluid py-4 px-4">
+                    {% block breadcrumbs %}
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="#">Главная</a></li>
+                            {% block breadcrumb_items %}{% endblock %}
+                        </ol>
+                    </nav>
+                    {% endblock %}
+
+                    {% block messages %}
+                    {% if messages %}
+                    <div class="mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% endblock %}
+
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
