@@ -49,6 +49,6 @@ def edit_profile(request):
         form = UserEditForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
-            return redirect("mailing_service:base")
+            return redirect("notes:base")
 
     return render(request, "users/edit_profile.html", {"form": form})
