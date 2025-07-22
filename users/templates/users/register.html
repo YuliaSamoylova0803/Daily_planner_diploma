@@ -1,5 +1,5 @@
-{% extends 'mailing_service/base.html' %}
-{% load my_tags %}
+{% extends 'notes/base.html' %}
+{% load users_tags %}
 
 {% block title%}Регистрация{% endblock %}
 
@@ -16,7 +16,7 @@
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         {{ form.as_p }}
-                        <button type="submit" class="btn btn-mint">Регистрация</button>
+                        <button type="submit" class="btn btn btn-primary">Регистрация</button>
 
                     </form>
                 </div>
