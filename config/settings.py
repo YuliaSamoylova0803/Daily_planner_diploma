@@ -156,3 +156,26 @@ AUTH_USER_MODEL = "users.User"
 LOGIN_REDIRECT_URL = 'notes:base'
 LOGOUT_REDIRECT_URL = 'notes:base'
 LOGIN_URL = 'users/login/'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'notes.views': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
