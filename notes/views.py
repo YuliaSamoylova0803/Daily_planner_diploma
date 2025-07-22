@@ -1,6 +1,6 @@
 import logging
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, DetailView, DeleteView
+from django.views.generic import ListView, DetailView, DeleteView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -14,6 +14,25 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
+
+def base(request):
+    return render(request, "notes/base.html")
+
+class BaseView(TemplateView):
+    template_name = "notes/base.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Общее количество записей
+        total_notes = Note.objects.count()
+
+        context.update(
+            {
+                "total_notes": total_notes,
+            }
+        )
+        return context
 
 class NoteListView(LoginRequiredMixin, ListView):
     """
