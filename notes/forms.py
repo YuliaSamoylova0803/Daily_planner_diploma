@@ -1,43 +1,55 @@
 from django import forms
-from .models import Note
-from django.forms import BooleanField
+from .models import Note, NoteImage
+from django.forms import BooleanField, DateInput
 
 
 class StyleFormMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         for field_name, field in self.fields.items():
-            # Инициализация класса form-control для всех полей
             if isinstance(field, BooleanField):
                 field.widget.attrs["class"] = "form-check-input"
             else:
                 field.widget.attrs["class"] = field.widget.attrs.get("class", "") + " form-control"
-
-            # Добавляем placeholder из help_text
             if field.help_text:
                 field.widget.attrs["placeholder"] = field.help_text
-
-            # Для полей даты добавляем класс datepicker
             if isinstance(field.widget, forms.DateInput):
                 field.widget.attrs["class"] = field.widget.attrs.get("class", "") + " datepicker"
 
 
-class NoteForm(StyleFormMixin, forms.ModelForm):
+class NoteImageForm(StyleFormMixin, forms.ModelForm):
+    """
+    Форма для загрузки изображений к записям.
+    Используется в AddImagesView для дефектов и ведомостей.
+    """
+    class Meta:
+        model = NoteImage
+        fields = ['image', 'description']
+        widgets = {
+            'description': forms.TextInput(attrs={'placeholder': 'Описание изображения'}),
+        }
+        help_texts = {
+            'image': 'Загрузите изображение дефекта',
+            'description': 'Краткое описание (необязательно)',
+        }
+
+
+class BaseNoteForm(StyleFormMixin, forms.ModelForm):
+    """
+        Базовый класс формы для всех типов записей.
+        Содержит только общие поля и функционал.
+
+        Преимущества:
+        1. Четкое разделение ответственности - каждая форма отвечает только за свой тип данных
+        2. Невозможно случайно отправить невалидные данные для конкретного типа записи
+        3. Проще в поддержке - изменения для одного типа не затрагивают другие
+        4. Более безопасно - нет скрытых полей, которые могут быть подменены
+    """
     class Meta:
         model = Note
-        fields = [
-            'note_type', 'title', 'content', 'image',
-            'mood', 'is_private',
-            'object_name', 'contractor', 'customer', 'document', 'address',
-            'act_number', 'inspection_date',
-            'statement_number', 'approval_date', 'approved_by'
-        ]
+        fields = ['title', 'content', 'image']
         widgets = {
             "content": forms.Textarea(attrs={"rows": 5}),
-            "inspection_date": forms.DateInput(attrs={"type": "date"}),
-            "approval_date": forms.DateInput(attrs={"type": "date"}),
-            "is_private": forms.CheckboxInput(),
         }
         help_texts = {
             "title": "Введите заголовок записи",
@@ -45,37 +57,94 @@ class NoteForm(StyleFormMixin, forms.ModelForm):
             "image": "Загрузите изображение (необязательно)",
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
-        # Определяем тип записи
-        note_type = self.instance.note_type if self.instance.pk else self.data.get("note_type", None)
+class PersonalNoteForm(BaseNoteForm):
+    """
+        Форма для личных записей. Добавляет специфичные поля:
+        - mood (настроение)
+        - is_private (приватность)
 
-        # Скрываем неиспользуемые поля
-        self._hide_unused_fields(note_type)
-
-        # Добавляем специфичные классы для разных полей
-        if 'content' in self.fields:
-            self.fields['content'].widget.attrs['class'] = self.fields['content'].widget.attrs.get('class',
-                                                                                                   '') + ' summernote'
-
-        if 'is_private' in self.fields:
-            self.fields['is_private'].widget.attrs['class'] = 'form-check-input'
-
-    def _hide_unused_fields(self, note_type):
-        """Скрываем поля в зависимости от типа записи"""
-        field_rules = {
-            'personal': ['mood', 'is_private'],
-            'hidden_act': ['act_number', 'inspection_date'],
-            'defect_statement': [
-                'statement_number', 'approval_date',
-                'approved_by', 'address'
-            ],
-            'work': ['object_name', 'contractor', 'customer']
+        Преимущества перед единой формой:
+        1. Пользователь видит только релевантные поля
+        2. Валидация происходит только для нужных полей
+        3. Чище код - нет условий для скрытия/показа полей
+    """
+    class Meta(BaseNoteForm.Meta):
+        fields = BaseNoteForm.Meta.fields + ['mood', 'is_private']
+        widgets = {
+            **BaseNoteForm.Meta.widgets,
+            "is_private": forms.CheckboxInput(),
         }
 
-        for note_type_pattern, fields_to_show in field_rules.items():
-            for field_name, field in self.fields.items():
-                if note_type_pattern != note_type and field_name not in fields_to_show:
-                    if field_name not in ["note_type", "title", "content", "image"]:
-                        field.widget = forms.HiddenInput()
+
+class WorkNoteForm(BaseNoteForm):
+    class Meta(BaseNoteForm.Meta):
+        fields = BaseNoteForm.Meta.fields + ['object_name', 'address']
+
+
+class DefectNoteForm(BaseNoteForm):
+    class Meta(BaseNoteForm.Meta):
+        fields = BaseNoteForm.Meta.fields + ['object_name', 'address']
+
+
+class DefectStatementForm(BaseNoteForm):
+    """
+        Форма для дефектных ведомостей. Специфика:
+        - Выбор связанных дефектов (defects)
+        - Номер ведомости
+        - Дата утверждения
+
+        Особые преимущества:
+        1. Автоматическая фильтрация дефектов (только note_type='defect')
+        2. Специальные виджеты для полей дат
+        3. Четкая структура без лишних полей
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['defects'].queryset = Note.objects.filter(note_type='defect')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if not cleaned_data.get('approval_date'):
+            raise forms.ValidationError("Дата утверждения обязательна для дефектных ведомостей")
+        return cleaned_data
+
+    class Meta(BaseNoteForm.Meta):
+        fields = BaseNoteForm.Meta.fields + [
+            'object_name', 'address',
+            'statement_number', 'approval_date', 'approved_by', 'defects'
+        ]
+        widgets = {
+            **BaseNoteForm.Meta.widgets,
+            "approval_date": DateInput(attrs={"type": "date"}),
+            "defects": forms.SelectMultiple(attrs={'class': 'form-select'}),
+        }
+        help_texts = {
+            **BaseNoteForm.Meta.help_texts,
+            "defects": "Выберите дефекты для включения в ведомость",
+        }
+
+
+def get_note_form_class(note_type):
+    """
+        Фабрика форм, возвращающая нужный класс формы по типу записи.
+
+        Параметры:
+            note_type (str): Один из типов записей ('personal', 'work', 'defect', 'defect_statement')
+
+        Возвращает:
+            type[forms.ModelForm]: Класс формы для указанного типа записи
+
+        Преимущества:
+        1. Единая точка входа для создания форм
+        2. Легко расширяется для новых типов записей
+        3. Прозрачная логика выбора формы
+    """
+    forms_mapping = {
+        'personal': PersonalNoteForm,
+        'work': WorkNoteForm,
+        'defect': DefectNoteForm,
+        'defect_statement': DefectStatementForm,
+    }
+    return forms_mapping.get(note_type, BaseNoteForm)
+
