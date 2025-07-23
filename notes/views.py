@@ -316,3 +316,13 @@ def download_document(request, pk):
     # Если что-то пошло не так
     messages.error(request, "Не удалось сгенерировать документ")
     return redirect('notes:detail', pk=pk)
+
+
+def generate_document(request, pk):
+    note = get_object_or_404(Note, pk=pk)
+    # Ваша логика генерации документа здесь
+    # Например:
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="document_{pk}.pdf"'
+    # ... генерация PDF ...
+    return response
