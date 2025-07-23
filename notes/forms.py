@@ -6,17 +6,21 @@ from django.forms import BooleanField
 class StyleFormMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for fild_name, field in self.fields.items():
+
+        for field_name, field in self.fields.items():
+            # Инициализация класса form-control для всех полей
             if isinstance(field, BooleanField):
                 field.widget.attrs["class"] = "form-check-input"
             else:
-                field.widget.attrs["class"] = "form-control"
-            # Добавляем placeholder
+                field.widget.attrs["class"] = field.widget.attrs.get("class", "") + " form-control"
+
+            # Добавляем placeholder из help_text
             if field.help_text:
                 field.widget.attrs["placeholder"] = field.help_text
-            # Для полей даты добавляем специальный класс
+
+            # Для полей даты добавляем класс datepicker
             if isinstance(field.widget, forms.DateInput):
-                field.widget.attrs["class"] += " datepicker"
+                field.widget.attrs["class"] = field.widget.attrs.get("class", "") + " datepicker"
 
 
 class NoteForm(StyleFormMixin, forms.ModelForm):
@@ -32,14 +36,15 @@ class NoteForm(StyleFormMixin, forms.ModelForm):
         widgets = {
             "content": forms.Textarea(attrs={"rows": 5}),
             "inspection_date": forms.DateInput(attrs={"type": "date"}),
-            "approval_date": forms.DateInput(attrs={"type": "dte"}),
+            "approval_date": forms.DateInput(attrs={"type": "date"}),
             "is_private": forms.CheckboxInput(),
         }
         help_texts = {
             "title": "Введите заголовок записи",
-            "context": "Подробное описание",
+            "content": "Подробное описание",
             "image": "Загрузите изображение (необязательно)",
         }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -50,8 +55,12 @@ class NoteForm(StyleFormMixin, forms.ModelForm):
         self._hide_unused_fields(note_type)
 
         # Добавляем специфичные классы для разных полей
-        self.fields['content'].widget.attrs['class'] += ' summernote'
-        self.fields['is_private'].widget.attrs['class'] = 'form-check-input'
+        if 'content' in self.fields:
+            self.fields['content'].widget.attrs['class'] = self.fields['content'].widget.attrs.get('class',
+                                                                                                   '') + ' summernote'
+
+        if 'is_private' in self.fields:
+            self.fields['is_private'].widget.attrs['class'] = 'form-check-input'
 
     def _hide_unused_fields(self, note_type):
         """Скрываем поля в зависимости от типа записи"""
