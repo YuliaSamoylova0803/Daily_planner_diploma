@@ -1,0 +1,43 @@
+{% extends 'notes/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h4>Добавление изображений для {{ note.title }}</h4>
+        </div>
+        
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ image_form.as_p }}
+                <button type="submit" class="btn btn-primary">Добавить изображение</button>
+            </form>
+            
+            <hr>
+            
+            <h5>Текущие изображения</h5>
+            <div class="row">
+                {% for image in images %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <img src="{{ image.image.url }}" class="card-img-top" alt="Изображение дефекта">
+                            <div class="card-body">
+                                <p class="card-text">{{ image.description|default:"Без описания" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>Нет загруженных изображений</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="card-footer">
+            <a href="{% url 'notes:detail' note.pk %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Вернуться к записи
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

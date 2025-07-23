@@ -1,214 +1,107 @@
 {% extends 'notes/base.html' %}
 {% load static %}
 
-{% block title %}{% if form.instance.pk %}Редактирование{% else %}Создание{% endif %} записи{% endblock %}
-{% block page_title %}{% if form.instance.pk %}Редактирование{% else %}Создание{% endif %} записи{% endblock %}
-{% block page_subtitle %}{% if form.instance.pk %}Изменение существующей записи{% else %}Добавление новой записи{% endif %}{% endblock %}
-
-{% block extra_css %}
-<style>
-    .summernote-wrapper {
-        border: 1px solid #0ff;
-        border-radius: 5px;
-        box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-    }
-    .neon-form .form-control, .neon-form .form-select {
-        background-color: #1a1a2e;
-        border: 1px solid #0ff;
-        color: #fff;
-        box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
-    }
-    .neon-form .form-control:focus, .neon-form .form-select:focus {
-        background-color: #16213e;
-        border-color: #0ff;
-        color: #fff;
-        box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-    }
-    .neon-form label {
-        color: #0ff;
-        margin-bottom: 0.5rem;
-    }
-    .form-check-input {
-        background-color: #1a1a2e;
-        border: 1px solid #0ff;
-    }
-    .form-check-label {
-        color: #fff;
-    }
-</style>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-$('#id_note_type').change(function() {
-    const noteType = $(this).val();
-
-    // Сначала скрыть все группы полей
-    $('.field-group').addClass('d-none');
-
-    // Показать общие поля
-    $('.field-common').removeClass('d-none');
-
-    // Показать поля для выбранного типа
-    if (noteType) {
-        $(`.field-group-${noteType}`).removeClass('d-none');
-    }
-
-    // Очистить скрытые поля при смене типа
-    $('.field-group :input').not('.field-common :input').val('');
-}).trigger('change');
-</script>
-{% endblock %}
-
 {% block content %}
-<div class="neon-card">
-    <div class="neon-card-header">
-        <h4>{% if form.instance.pk %}Редактирование{% else %}Создание{% endif %} записи</h4>
+<div class="container">
+    <h2 class="my-4 neon-title">
+        {% if object %}
+            Редактирование записи
+        {% else %}
+            Создание
+            <span class="badge
+                {% if view.get_note_type == 'personal' %}bg-purple
+                {% elif view.get_note_type == 'work' %}bg-green
+                {% elif view.get_note_type == 'defect' %}bg-orange
+                {% elif view.get_note_type == 'statement' %}bg-red
+                {% else %}bg-secondary{% endif %}">
+                {{ view.get_note_type_display|default:"новой" }}
+            </span>
+            записи
+        {% endif %}
+    </h2>
+
+    <div class="text-center mb-4">
+        {% if view.get_note_type == 'personal' %}
+            <i class="fas fa-book-open fa-3x text-purple"></i>
+        {% elif view.get_note_type == 'work' %}
+            <i class="fas fa-hard-hat fa-3x text-green"></i>
+        {% elif view.get_note_type == 'defect' %}
+            <i class="fas fa-exclamation-triangle fa-3x text-orange"></i>
+        {% elif view.get_note_type == 'statement' %}
+            <i class="fas fa-file-alt fa-3x text-red"></i>
+        {% endif %}
     </div>
-    <div class="neon-card-body">
-        <form method="post" enctype="multipart/form-data" class="neon-form">
-            {% csrf_token %}
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    {{ form.note_type.label_tag }}
-                    {{ form.note_type }}
-                </div>
-            </div>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    {{ form.title.label_tag }}
-                    {{ form.title }}
-                </div>
-                {% if 'image' in form.fields %}
-                <div class="col-md-6">
-                    {{ form.image.label_tag }}
-                    {{ form.image }}
-                </div>
-                {% endif %}
-            </div>
+        <!-- Общие поля -->
+        <div class="mb-3">
+            <label for="{{ form.title.id_for_label }}" class="form-label">Заголовок</label>
+            {{ form.title }}
+        </div>
 
+        <div class="mb-3">
+            <label for="{{ form.content.id_for_label }}" class="form-label">Содержание</label>
+            {{ form.content }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.image.id_for_label }}" class="form-label">Изображение</label>
+            {{ form.image }}
+        </div>
+
+        <!-- Динамические поля -->
+        {% if view.get_note_type == 'personal' %}
             <div class="mb-3">
-                {{ form.content.label_tag }}
-                {{ form.content }}
+                <label for="{{ form.mood.id_for_label }}" class="form-label">Настроение</label>
+                {{ form.mood }}
             </div>
+            <div class="mb-3 form-check">
+                {{ form.is_private }}
+                <label for="{{ form.is_private.id_for_label }}" class="form-check-label">Приватная запись</label>
+            </div>
+        {% elif view.get_note_type == 'work' or view.get_note_type == 'defect' or view.get_note_type == 'statement' %}
+            <div class="mb-3">
+                <label for="{{ form.object_name.id_for_label }}" class="form-label">Название объекта</label>
+                {{ form.object_name }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.address.id_for_label }}" class="form-label">Адрес объекта</label>
+                {{ form.address }}
+            </div>
+        {% endif %}
 
-            <!-- Поля для личных записей -->
-            <div class="field-group field-group-personal {% if form.instance.note_type != 'personal' %}d-none{% endif %}">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        {{ form.mood.label_tag }}
-                        {{ form.mood }}
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-check mt-4 pt-2">
-                            {{ form.is_private }}
-                            <label class="form-check-label" for="{{ form.is_private.id_for_label }}">
-                                {{ form.is_private.label }}
-                            </label>
-                        </div>
-                    </div>
-                </div>
+        {% if view.get_note_type == 'statement' %}
+            <div class="mb-3">
+                <label for="{{ form.statement_number.id_for_label }}" class="form-label">Номер ведомости</label>
+                {{ form.statement_number }}
             </div>
+            <div class="mb-3">
+                <label for="{{ form.approval_date.id_for_label }}" class="form-label">Дата утверждения</label>
+                <input type="date" name="approval_date" class="form-control"
+                       value="{{ form.approval_date.value|default:'' }}">
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.approved_by.id_for_label }}" class="form-label">Утвердил</label>
+                {{ form.approved_by }}
+            </div>
+        {% endif %}
 
-            <!-- Поля для рабочих записей -->
-            <div class="field-group field-group-work {% if form.instance.note_type != 'work' %}d-none{% endif %}">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        {{ form.object_name.label_tag }}
-                        {{ form.object_name }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ form.contractor.label_tag }}
-                        {{ form.contractor }}
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        {{ form.customer.label_tag }}
-                        {{ form.customer }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ form.document.label_tag }}
-                        {{ form.document }}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Поля для актов скрытых работ -->
-            <div class="field-group field-group-hidden_act {% if form.instance.note_type != 'hidden_act' %}d-none{% endif %}">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        {{ form.act_number.label_tag }}
-                        {{ form.act_number }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ form.inspection_date.label_tag }}
-                        {{ form.inspection_date }}
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        {{ form.object_name.label_tag }}
-                        {{ form.object_name }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ form.address.label_tag }}
-                        {{ form.address }}
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        {{ form.contractor.label_tag }}
-                        {{ form.contractor }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ form.customer.label_tag }}
-                        {{ form.customer }}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Поля для дефектных ведомостей -->
-            <div class="field-group field-group-defect_statement {% if form.instance.note_type != 'defect_statement' %}d-none{% endif %}">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        {{ form.statement_number.label_tag }}
-                        {{ form.statement_number }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ form.approval_date.label_tag }}
-                        {{ form.approval_date }}
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        {{ form.object_name.label_tag }}
-                        {{ form.object_name }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ form.address.label_tag }}
-                        {{ form.address }}
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        {{ form.approved_by.label_tag }}
-                        {{ form.approved_by }}
-                    </div>
-                </div>
-            </div>
-
-            <div class="d-flex justify-content-end mt-4">
-                <button type="submit" class="neon-btn me-2">
-                    <i class="fas fa-save"></i> Сохранить
-                </button>
-                <a href="{% if form.instance.pk %}{% url 'notes:detail' form.instance.pk %}{% else %}{% url 'notes:list' %}{% endif %}" class="neon-btn">
-                    <i class="fas fa-times"></i> Отмена
-                </a>
-            </div>
-        </form>
-    </div>
+        <button type="submit" class="btn btn-primary mt-3">
+            {% if object %}Сохранить{% else %}Создать{% endif %}
+        </button>
+    </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация datepicker
+    $('input[type="date"]').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+        todayHighlight: true
+    });
+});
+</script>
 {% endblock %}

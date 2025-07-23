@@ -14,140 +14,191 @@
     <!-- Summernote WYSIWYG -->
     <link href="{% static 'css/summernote-lite.min.css' %}" rel="stylesheet">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
     {% block extra_css %}{% endblock %}
 </head>
 
 <body>
-    {% include 'notes/header.html'%}
+{% include 'notes/header.html'%}
 
-    <!-- Основное содержимое -->
-    <main class="main-content">
-        <div class="geometric-shape shape-triangle"></div>
-        <div class="geometric-shape shape-circle"></div>
-        <div class="geometric-shape shape-square"></div>
+<!-- Основное содержимое -->
+<main class="main-content">
+    <div class="geometric-shape shape-triangle"></div>
+    <div class="geometric-shape shape-circle"></div>
+    <div class="geometric-shape shape-square"></div>
 
-        <div class="container">
-            {% block pre_content %}
-            {% if not hide_welcome %}
-            <div class="row mb-5">
-                <div class="col-12">
-                    <h1 class="neon-title">{% block page_title %}Добро пожаловать в Construction Diary{% endblock %}</h1>
-                    <p class="text-muted">{% block page_subtitle %}Строите планы - фиксируйте результаты{% endblock %}</p>
-                </div>
+    <div class="container">
+        {% block pre_content %}
+        {% if not hide_welcome %}
+        <div class="row mb-5">
+            <div class="col-12">
+                <h1 class="neon-title">{% block page_title %}Добро пожаловать в Construction Diary{% endblock %}</h1>
+                <p class="text-muted">{% block page_subtitle %}Строите планы - фиксируйте результаты{% endblock %}</p>
             </div>
-            {% endif %}
-            {% endblock %}
-
-            {% block content %}
-            <!-- Контент по умолчанию (главная страница) -->
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="neon-card">
-                        <div class="neon-card-header">
-                            <i class="fas fa-book-open me-2"></i> Личный дневник
-                        </div>
-                        <div class="neon-card-body">
-                            <p>Записывайте ежедневные заметки о ходе строительства, идеях и наблюдениях.</p>
-                            <a href="{% url 'notes:list' %}?note_type=personal" class="neon-btn">Открыть</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="neon-card">
-                        <div class="neon-card-header">
-                            <i class="fas fa-tasks me-2"></i> Рабочий журнал
-                        </div>
-                        <div class="neon-card-body">
-                            <p>Фиксируйте выполненные работы, используемые материалы и затраченное время.</p>
-                            <a href="{% url 'notes:list' %}?note_type=work" class="neon-btn">Открыть</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="neon-card">
-                        <div class="neon-card-header">
-                            <i class="fas fa-chart-pie me-2"></i> Документы
-                        </div>
-                        <div class="neon-card-body">
-                            <p>Создавайте дефектные ведомости и акты скрытых работ.</p>
-                            <a href="{% url 'notes:create' %}" class="neon-btn">Создать</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endblock %}
         </div>
-    </main>
+        {% endif %}
+        {% endblock %}
 
-    <!-- Футер -->
-    <footer class="neon-footer">
-        {% include 'notes/footer.html'%}
-    </footer>
+        {% block content %}
+        <div class="row">
+            <!-- Карточка для личных записей -->
+            <div class="col-md-3 mb-4">
+                <div class="neon-card h-100">
+                    <div class="neon-card-header bg-primary">
+                        <i class="fas fa-book-open me-2"></i> Личная запись
+                    </div>
+                    <div class="neon-card-body">
+                        <p>Заметки для себя: мысли, идеи, планы</p>
+                        <a href="{% url 'notes:create_personal' %}"
+                           class="neon-btn neon-btn-personal">
+                            Создать личную запись
+                        </a>
+                    </div>
+                </div>
+            </div>
 
-    <!-- jQuery -->
-    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
-    <!-- Bootstrap JS Bundle с Popper -->
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-    <!-- Summernote WYSIWYG -->
-    <script src="{% static 'js/summernote-lite.min.js' %}"></script>
-    <script src="{% static 'js/summernote-ru-RU.min.js' %}"></script>
-    <!-- Кастомные скрипты -->
-    <script src="{% static 'js/script.js' %}"></script>
+            <!-- Карточка для рабочих записей -->
+            <div class="col-md-3 mb-4">
+                <div class="neon-card h-100">
+                    <div class="neon-card-header bg-success">
+                        <i class="fas fa-hard-hat me-2"></i> Рабочая запись
+                    </div>
+                    <div class="neon-card-body">
+                        <p>Журнал работ, материалы, задачи</p>
+                        <a href="{% url 'notes:create_work' %}"
+                           class="neon-btn neon-btn-work">
+                            Создать рабочую запись
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточка для дефектов -->
+            <div class="col-md-3 mb-4">
+                <div class="neon-card h-100">
+                    <div class="neon-card-header bg-warning text-dark">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Дефект
+                    </div>
+                    <div class="neon-card-body">
+                        <p>Фиксация строительных дефектов</p>
+                        <a href="{% url 'notes:create_defect' %}"
+                           class="neon-btn neon-btn-defect">
+                            Зафиксировать дефект
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточка для ведомостей -->
+            <div class="col-md-3 mb-4">
+                <div class="neon-card h-100">
+                    <div class="neon-card-header bg-danger">
+                        <i class="fas fa-file-alt me-2"></i> Ведомость
+                    </div>
+                    <div class="neon-card-body">
+                        <p>Официальные документы для подрядчиков</p>
+                        <a href="{% url 'notes:create_statement' %}"
+                           class="neon-btn neon-btn-statement">
+                            Создать ведомость
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ссылки на списки записей -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{% url 'notes:list' %}?note_type=personal" class="btn btn-outline-primary">
+                        <i class="fas fa-book me-2"></i>Все личные записи
+                    </a>
+                    <a href="{% url 'notes:list' %}?note_type=work" class="btn btn-outline-success">
+                        <i class="fas fa-tasks me-2"></i>Все рабочие записи
+                    </a>
+                    <a href="{% url 'notes:list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-list me-2"></i>Все записи
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
+    </div>
+</main>
+
+<!-- Футер -->
+<footer class="neon-footer">
+    {% include 'notes/footer.html'%}
+</footer>
+
+<!-- jQuery -->
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+<!-- Bootstrap JS Bundle с Popper -->
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<!-- Summernote WYSIWYG -->
+<script src="{% static 'js/summernote-lite.min.js' %}"></script>
+<script src="{% static 'js/summernote-ru-RU.min.js' %}"></script>
+<!-- Кастомные скрипты -->
+<script src="{% static 'js/script.js' %}"></script>
 
 {% block extra_js %}
-    <!-- Подключение необходимых библиотек -->
+<!-- Подключение необходимых библиотек -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.ru.min.js"></script>
 
 <!-- Ваш JavaScript код -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // 1. Обработка изменения типа записи
-    const noteTypeField = document.getElementById('id_note_type');
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Обработка изменения типа записи
+        const noteTypeField = document.getElementById('id_note_type');
 
-    if (noteTypeField) {
-        noteTypeField.addEventListener('change', function() {
-            // Простая отправка формы при изменении типа
-            this.form.submit();
-        });
-    }
+        if (noteTypeField) {
+            noteTypeField.addEventListener('change', function() {
+                // Простая отправка формы при изменении типа
+                this.form.submit();
+            });
+        }
 
-    // 2. Инициализация datepicker
-    if (typeof $.fn.datepicker !== 'undefined') {
-        $('.datepicker').datepicker({
-            format: 'yyyy-mm-dd',
-            autoclose: true,
-            language: 'ru'
-        });
-    }
+        // 2. Инициализация datepicker
+        if (typeof $.fn.datepicker !== 'undefined') {
+            $('.datepicker').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
+                language: 'ru'
+            });
+        }
 
-    // 3. Инициализация Summernote (если используется)
-    if (typeof $.fn.summernote !== 'undefined') {
-        $('.summernote').summernote({
-            height: 300,
-            lang: 'ru-RU',
-            toolbar: [
-                ['style', ['bold', 'italic', 'underline', 'clear']],
-                ['font', ['strikethrough']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['insert', ['link', 'picture', 'video']],
-                ['view', ['fullscreen', 'codeview', 'help']]
-            ],
-            callbacks: {
-                onInit: function() {
-                    $('.note-editable').css('background-color', '#1a1a2e');
-                    $('.note-editable').css('color', '#fff');
+        // 3. Инициализация Summernote (если используется)
+        if (typeof $.fn.summernote !== 'undefined') {
+            $('.summernote').summernote({
+                height: 300,
+                lang: 'ru-RU',
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['font', ['strikethrough']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                callbacks: {
+                    onInit: function() {
+                        $('.note-editable').css('background-color', '#1a1a2e');
+                        $('.note-editable').css('color', '#fff');
+                    }
                 }
-            }
-        });
-    }
-});
+            });
+        }
+    });
 </script>
 {% endblock %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.ru.min.js"></script>
 </body>
 </html>

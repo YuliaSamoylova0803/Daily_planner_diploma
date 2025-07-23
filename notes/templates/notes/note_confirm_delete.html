@@ -1,12 +1,35 @@
-{% extends 'base.html' %}
+{% extends 'notes/base.html' %}
+
 
 {% block content %}
-<h1>Подтверждение удаления</h1>
-<p>Вы уверены, что хотите удалить запись "{{ note.title }}"?</p>
+<div class="container mt-4">
+    <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+            <h4>Подтверждение удаления</h4>
+        </div>
 
-<form method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Удалить</button>
-    <a href="{% url 'notes:detail' note.pk %}" class="btn btn-secondary">Отмена</a>
-</form>
+        <div class="card-body">
+            <p>Вы уверены, что хотите удалить запись <strong>"{{ note.title }}"</strong>?</p>
+            <p class="text-muted">Тип: {{ note.get_note_type_display }} | Создано: {{ note.created_at|date:"d.m.Y H:i" }}</p>
+
+            {% if note.note_type == 'defect_statement' %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> Будут также удалены все связанные изображения!
+                </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'notes:detail' note.pk %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Отмена
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i> Удалить навсегда
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
