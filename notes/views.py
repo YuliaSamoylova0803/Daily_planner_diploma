@@ -5,17 +5,22 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from .models import Note
-from .forms import get_note_form_class, NoteImageForm
+from .forms import get_note_form_class, NoteImageForm, PersonalNoteForm, WorkNoteForm, DefectNoteForm, \
+    DefectStatementForm
 from django.http import HttpResponse, FileResponse
 import os
 from django.conf import settings
 import logging
-from .services import save_defect_statement
-
-
+from .services import save_defect_statement, send_to_telegram as send_to_telegram_service
 
 logger = logging.getLogger(__name__)
 
+NOTE_TYPES = (
+    ('personal', 'Личная запись'),
+    ('work', 'Рабочая запись'),
+    ('defect', 'Дефект'),
+    ('statement', 'Ведомость'),
+)
 
 def base(request):
     return render(request, "notes/base.html")
@@ -97,9 +102,32 @@ class NoteCreateView(LoginRequiredMixin, CreateView):
     template_name = "notes/note_form.html"
 
     def get_form_class(self):
-        """Возвращает соответствующую форму на основе типа записи"""
-        note_type = self.request.GET.get('note_type', 'personal')
-        return get_note_form_class(note_type)
+        note_type = self.kwargs.get('note_type') or self.request.GET.get('note_type')
+
+        if note_type == 'personal':
+            return PersonalNoteForm
+        elif note_type == 'work':
+            return WorkNoteForm
+        elif note_type == 'defect':
+            return DefectNoteForm
+        elif note_type == 'statement':
+            return DefectStatementForm
+        else:
+            # Форма по умолчанию или обработка ошибки
+            from django import forms
+            class DefaultNoteForm(forms.ModelForm):
+                class Meta:
+                    model = Note  # Укажите вашу модель
+                    fields = ['title', 'content']
+
+            return DefaultNoteForm
+
+    def get_note_type(self):
+        return self.kwargs.get('note_type') or self.request.GET.get('note_type')
+
+    def get_note_type_display(self):
+        note_type = self.get_note_type()
+        return dict(NOTE_TYPES).get(note_type, 'новой')
 
     def form_valid(self, form):
         """Обработка валидной формы - установка пользователя и типа записи"""
@@ -250,7 +278,7 @@ def download_document(request, pk):
     4. Безопасная работа с путями файлов
     5. Человекочитаемые имена файлов при скачивании
     """
-    relative_path = save_defect_statement(note)
+
     logger.info(f"User {request.user} requested document download for note ID={pk}")
 
     try:
@@ -289,3 +317,24 @@ def download_document(request, pk):
         logger.error(f"Document generation failed for note {pk}: {str(e)}", exc_info=True)
         messages.error(request, f"Ошибка при генерации документа: {str(e)}")
         return redirect('notes:detail', pk=pk)
+
+
+def send_to_telegram_view(request, pk):
+    """
+    View для обработки отправки в Telegram
+    """
+    note = get_object_or_404(Note, pk=pk, user=request.user)
+
+    if note.note_type not in ['defect_statement', 'hidden_act']:
+        messages.error(request, "Этот тип записи нельзя отправить в Telegram")
+        return redirect('notes:detail', pk=pk)
+
+    # Вызываем сервисный метод с новым именем
+    success = send_to_telegram_service(note)
+
+    if success:
+        messages.success(request, "Запись успешно отправлена в Telegram")
+    else:
+        messages.error(request, "Ошибка при отправке в Telegram")
+
+    return redirect('notes:detail', pk=pk)
