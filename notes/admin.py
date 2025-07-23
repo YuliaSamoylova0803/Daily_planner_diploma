@@ -1,11 +1,11 @@
 from django.contrib import admin
-from .models import Note, DefectImage
+from .models import Note, NoteImage
 
 # Register your models here.
 admin.site.register(Note)
 
-@admin.register(DefectImage)
-class DefectImageAdmin(admin.ModelAdmin):
-    list_display = ('id', 'note', 'defect_number', 'description')
-    list_filter = ('note', 'defect_number')
+@admin.register(NoteImage)
+class NoteImageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'note', 'description')
+    list_filter = ('note',)
     search_fields = ('description', 'note__title')
