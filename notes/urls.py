@@ -1,7 +1,7 @@
 from django.urls import path
 from notes.apps import NotesConfig
 from .views import NoteListView, NoteCreateView, NoteUpdateView, NoteDetailView, NoteDeleteView, download_document, \
-    BaseView
+    BaseView, generate_document
 
 app_name = NotesConfig.name  # или можно просто указать app_name = 'notes'
 
@@ -13,4 +13,5 @@ urlpatterns = [
     path("<int:pk>/download/", download_document, name="download"),
     path("<int:pk>/", NoteDetailView.as_view(), name="detail"),
     path("list/", NoteListView.as_view(), name="list"),
+    path('<int:pk>/generate/', generate_document, name='generate_document'),
 ]
