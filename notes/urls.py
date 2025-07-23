@@ -1,7 +1,7 @@
 from django.urls import path
 from notes.apps import NotesConfig
 from .views import NoteListView, NoteCreateView, NoteUpdateView, NoteDetailView, NoteDeleteView, BaseView, \
-    AddImagesView, download_document
+    AddImagesView, download_document, send_to_telegram_view
 
 app_name = NotesConfig.name  # или можно просто указать app_name = 'notes'
 
@@ -14,10 +14,11 @@ urlpatterns = [
     path("list/", NoteListView.as_view(), name="list"),
     path('<int:pk>/add-images/', AddImagesView.as_view(), name='add_images'),
     path('<int:pk>/download/', download_document, name='download_document'),
+    path('<int:pk>/send_telegram/', send_to_telegram_view, name='send_to_telegram'),
 
 # Специальные URL для создания конкретных типов записей
-    path('personal/create/', NoteCreateView.as_view(), name='create_personal'),
-    path('work/create/', NoteCreateView.as_view(), name='create_work'),
-    path('defect/create/', NoteCreateView.as_view(), name='create_defect'),
-    path('statement/create/', NoteCreateView.as_view(), name='create_statement'),
+    path('personal/create/', NoteCreateView.as_view(), {'note_type': 'personal'}, name='create_personal'),
+    path('work/create/', NoteCreateView.as_view(), {'note_type': 'work'}, name='create_work'),
+    path('defect/create/', NoteCreateView.as_view(), {'note_type': 'defect'}, name='create_defect'),
+    path('statement/create/', NoteCreateView.as_view(), {'note_type': 'statement'}, name='create_statement'),
 ]
