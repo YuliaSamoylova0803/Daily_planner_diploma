@@ -17,6 +17,7 @@ openpyxl = "^3.1.5"
 docx = "^0.2.4"
 python-docx = "^1.2.0"
 markdown = "^3.8.2"
+requests = "^2.32.4"
 
 
 [tool.poetry.group.lint.dependencies]
