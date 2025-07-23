@@ -421,3 +421,100 @@ border: 1px solid #0ff;
     font-size: 0.9em;
     margin-top: 0.25rem;
 }
+.btn-telegram {
+  background-color: #0088cc;
+  color: white;
+}
+
+.btn-telegram:hover {
+  background-color: #0077b5;
+  color: white;
+}
+
+/* Badge colors for note types */
+.badge.bg-personal { background-color: #6c757d; }
+.badge.bg-work { background-color: #0d6efd; }
+.badge.bg-defect { background-color: #ffc107; color: #000; }
+.badge.bg-defect_statement { background-color: #dc3545; }
+
+/* Стили для иконок и кнопок */
+.btn-telegram {
+  background-color: #0088cc;
+  color: white;
+  border: none;
+}
+
+.btn-telegram:hover {
+  background-color: #0077b5;
+  color: white;
+}
+
+.content-block {
+  white-space: pre-line;
+  line-height: 1.6;
+}
+
+/* Адаптивные отступы */
+@media (max-width: 768px) {
+  .card-footer .btn {
+    margin-bottom: 10px;
+    width: 100%;
+  }
+
+  .card-footer .d-flex {
+    flex-direction: column;
+  }
+
+.btn-telegram {
+    background-color: #0088cc;
+    color: white;
+}
+.btn-telegram:hover {
+    background-color: #0077b5;
+    color: white;
+}
+/* Стили для кнопок разных типов */
+.neon-btn-personal {
+    background: linear-gradient(45deg, #6f42c1, #a370f3);
+    border-color: #6f42c1;
+}
+
+.neon-btn-work {
+    background: linear-gradient(45deg, #20c997, #3be8b0);
+    border-color: #20c997;
+}
+
+.neon-btn-defect {
+    background: linear-gradient(45deg, #fd7e14, #ffab5c);
+    border-color: #fd7e14;
+}
+
+.neon-btn-statement {
+    background: linear-gradient(45deg, #dc3545, #ff6b7f);
+    border-color: #dc3545;
+}
+
+/* Анимации при наведении */
+.neon-btn-personal:hover {
+    box-shadow: 0 0 15px #6f42c1;
+}
+
+.neon-btn-work:hover {
+    box-shadow: 0 0 15px #20c997;
+}
+
+.neon-btn-defect:hover {
+    box-shadow: 0 0 15px #fd7e14;
+}
+
+.neon-btn-statement:hover {
+    box-shadow: 0 0 15px #dc3545;
+}
+.bg-purple { background: #6f42c1; }
+.bg-green { background: #20c997; }
+.bg-orange { background: #fd7e14; }
+.bg-red { background: #dc3545; }
+
+.neon-title {
+    text-shadow: 0 0 5px currentColor;
+}
