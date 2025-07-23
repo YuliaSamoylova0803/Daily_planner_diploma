@@ -1,0 +1,82 @@
+{% extends 'notes/base.html' %}
+{% load note_tags %}
+
+{% block title %}Мои записи{% endblock %}
+{% block page_title %}Мои записи{% endblock %}
+{% block page_subtitle %}Просмотр и управление вашими записями{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <form method="get" class="row g-3">
+        <div class="col-md-3">
+            <select name="note_type" class="form-select neon-select">
+                <option value="">Все типы</option>
+                {% for value, display in note_types %}
+                <option value="{{ value }}" {% if request.GET.note_type == value %}selected{% endif %}>{{ display }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-6">
+            <input type="text" name="q" class="form-control neon-input" placeholder="Поиск..." value="{{ request.GET.q }}">
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="neon-btn">Фильтровать</button>
+            <a href="{% url 'notes:list' %}" class="neon-btn">Сбросить</a>
+        </div>
+    </form>
+</div>
+
+<div class="neon-table-container">
+    {% for note in object_list %}
+    <div class="neon-card mb-3">
+        <div class="neon-card-header d-flex justify-content-between">
+            <div>
+                <i class="fas fa-{{ note.note_type|get_note_icon }} me-2"></i>
+                {{ note.title }}
+            </div>
+            <span class="badge neon-badge">{{ note.get_note_type_display }}</span>
+        </div>
+        <div class="neon-card-body">
+            <p>{{ note.content|truncatewords:30 }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">{{ note.created_at|date:"d.m.Y H:i" }}</small>
+                <a href="{% url 'notes:detail' note.pk %}" class="neon-btn-sm">Подробнее</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="neon-card">
+        <div class="neon-card-body text-center">
+            <p>Записей не найдено</p>
+            <a href="{% url 'notes:create' %}" class="neon-btn">Создать первую запись</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if is_paginated %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link neon-pagination" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.note_type %}&note_type={{ request.GET.note_type }}{% endif %}">‹</a>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active"><a class="page-link neon-pagination active" href="#">{{ num }}</a></li>
+        {% else %}
+        <li class="page-item"><a class="page-link neon-pagination" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.note_type %}&note_type={{ request.GET.note_type }}{% endif %}">{{ num }}</a></li>
+        {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link neon-pagination" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.note_type %}&note_type={{ request.GET.note_type }}{% endif %}">›</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'notes/base.html' %}
+{% load note_tags %}
+{% load markdown_tags %}
+
+{% block title %}{{ note.title }}{% endblock %}
+{% block page_title %}{{ note.title }}{% endblock %}
+{% block page_subtitle %}{{ note.get_note_type_display }}{% endblock %}
+
+{% block content %}
+<div class="neon-card">
+    <div class="neon-card-header d-flex justify-content-between align-items-center">
+        <div>
+            <i class="fas fa-{{ note.note_type|get_note_icon }} me-2"></i>
+            {{ note.title }}
+        </div>
+        <span class="badge neon-badge">{{ note.get_note_type_display }}</span>
+    </div>
+
+    {% if note.image %}
+    <div class="text-center p-3">
+        <img src="{{ note.image.url }}" alt="{{ note.title }}" class="img-fluid rounded neon-img">
+    </div>
+    {% endif %}
+
+    <div class="neon-card-body">
+        <div class="neon-content markdown-content">
+            {{ note.content|apply_markdown|safe }}
+        </div>
+
+        {% include 'notes/partials/note_detail_content.html' %}
+    </div>
+
+    <div class="neon-card-footer d-flex justify-content-between">
+        <small class="text-muted">Создано: {{ note.created_at|date:"d.m.Y H:i" }}</small>
+        <div>
+            <a href="{% url 'notes:update' note.pk %}" class="neon-btn-sm me-2">
+                <i class="fas fa-edit"></i> Редактировать
+            </a>
+            {% if note.note_type in 'hidden_act defect_statement' %}
+            <a href="{% url 'notes:generate_document' note.pk %}" class="neon-btn-sm">
+                <i class="fas fa-file-download"></i> Скачать
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
