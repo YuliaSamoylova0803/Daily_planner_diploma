@@ -1,5 +1,5 @@
 from django import forms
-from .models import Note, NoteImage
+from .models import Note, DefectImage, DefectStatement
 from django.forms import BooleanField, DateInput
 
 
@@ -15,23 +15,6 @@ class StyleFormMixin:
                 field.widget.attrs["placeholder"] = field.help_text
             if isinstance(field.widget, forms.DateInput):
                 field.widget.attrs["class"] = field.widget.attrs.get("class", "") + " datepicker"
-
-
-class NoteImageForm(StyleFormMixin, forms.ModelForm):
-    """
-    Форма для загрузки изображений к записям.
-    Используется в AddImagesView для дефектов и ведомостей.
-    """
-    class Meta:
-        model = NoteImage
-        fields = ['image', 'description']
-        widgets = {
-            'description': forms.TextInput(attrs={'placeholder': 'Описание изображения'}),
-        }
-        help_texts = {
-            'image': 'Загрузите изображение дефекта',
-            'description': 'Краткое описание (необязательно)',
-        }
 
 
 class BaseNoteForm(StyleFormMixin, forms.ModelForm):
@@ -86,43 +69,12 @@ class DefectNoteForm(BaseNoteForm):
     class Meta(BaseNoteForm.Meta):
         fields = BaseNoteForm.Meta.fields + ['object_name', 'address']
 
-
-class DefectStatementForm(BaseNoteForm):
-    """
-        Форма для дефектных ведомостей. Специфика:
-        - Выбор связанных дефектов (defects)
-        - Номер ведомости
-        - Дата утверждения
-
-        Особые преимущества:
-        1. Автоматическая фильтрация дефектов (только note_type='defect')
-        2. Специальные виджеты для полей дат
-        3. Четкая структура без лишних полей
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['defects'].queryset = Note.objects.filter(note_type='defect')
-
-    def clean(self):
-        cleaned_data = super().clean()
-        if not cleaned_data.get('approval_date'):
-            raise forms.ValidationError("Дата утверждения обязательна для дефектных ведомостей")
-        return cleaned_data
-
-    class Meta(BaseNoteForm.Meta):
-        fields = BaseNoteForm.Meta.fields + [
-            'object_name', 'address',
-            'statement_number', 'approval_date', 'approved_by', 'defects'
-        ]
-        widgets = {
-            **BaseNoteForm.Meta.widgets,
-            "approval_date": DateInput(attrs={"type": "date"}),
-            "defects": forms.SelectMultiple(attrs={'class': 'form-select'}),
-        }
-        help_texts = {
-            **BaseNoteForm.Meta.help_texts,
-            "defects": "Выберите дефекты для включения в ведомость",
-        }
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.note_type = 'defect'  # Важно! Устанавливаем тип 'defect'
+        if commit:
+            instance.save()
+        return instance
 
 
 def get_note_form_class(note_type):
@@ -148,3 +100,33 @@ def get_note_form_class(note_type):
     }
     return forms_mapping.get(note_type, BaseNoteForm)
 
+
+class DefectImageForm(StyleFormMixin, forms.ModelForm):
+    class Meta:
+        model = DefectImage
+        fields = ['image', 'description', 'required_work', 'repair_deadline']
+        widgets = {
+            'repair_deadline': forms.DateInput(attrs={'type': 'date'}),
+            'description': forms.Textarea(attrs={'rows': 3}),
+            'required_work': forms.Textarea(attrs={'rows': 3}),
+        }
+
+
+class DefectStatementForm(StyleFormMixin, forms.ModelForm):
+    defects = forms.ModelMultipleChoiceField(
+        queryset=Note.objects.filter(note_type='defect'),
+        widget=forms.CheckboxSelectMultiple,
+        required=True
+    )
+
+    class Meta:
+        model = DefectStatement
+        fields = ['title', 'statement_number', 'defects', 'approval_date', 'approved_by']
+        widgets = {
+            'approval_date': forms.DateInput(attrs={'type': 'date'}),
+            'title': forms.TextInput(attrs={'placeholder': 'Например: "Текущий ремонт офиса"'}),
+            'statement_number': forms.TextInput(attrs={'placeholder': 'Формат: ДВ-2025-001'}),
+        }
+        help_texts = {
+            'defects': 'Выберите дефекты для включения в ведомость',
+        }

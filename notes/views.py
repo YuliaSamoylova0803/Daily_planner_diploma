@@ -4,14 +4,19 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from .models import Note
-from .forms import get_note_form_class, NoteImageForm, PersonalNoteForm, WorkNoteForm, DefectNoteForm, \
-    DefectStatementForm
+from .models import Note, DefectImage, DefectStatement, DefectInStatement
+from .forms import get_note_form_class, PersonalNoteForm, WorkNoteForm, DefectNoteForm, \
+    DefectStatementForm, DefectImageForm
 from django.http import HttpResponse, FileResponse
 import os
 from django.conf import settings
 import logging
 from .services import save_defect_statement, send_to_telegram as send_to_telegram_service
+from docx import Document
+from docx.shared import Pt, Inches
+from django.http import FileResponse
+from io import BytesIO
+
 
 logger = logging.getLogger(__name__)
 
@@ -141,8 +146,10 @@ class NoteCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         """Перенаправление после успешного создания"""
-        if self.object.note_type in ['defect', 'defect_statement']:
-            return reverse_lazy('notes:add_images', kwargs={'pk': self.object.pk})
+        if self.object.note_type == 'defect':
+            return reverse_lazy('notes:add_defect_image', kwargs={'note_id': self.object.pk})
+        elif self.object.note_type == 'defect_statement':
+            return reverse_lazy('notes:defect_statement_detail', kwargs={'pk': self.object.pk})
         return reverse_lazy('notes:list')
 
 
@@ -220,103 +227,132 @@ class NoteDeleteView(LoginRequiredMixin, DeleteView):
         messages.success(request, 'Запись успешно удалена!')
         return response
 
-
-class AddImagesView(LoginRequiredMixin, UpdateView):
-    """
-    Представление для добавления изображений к записи.
-
-    Особенности:
-    - Работает только с записями типа 'defect' и 'defect_statement'
-    - Использует отдельную форму для загрузки изображений
-    """
-    model = Note
-    template_name = "notes/add_images.html"
-    fields = []
-
-    def get_queryset(self):
-        """Ограничивает доступ только к записям текущего пользователя"""
-        return Note.objects.filter(
-            user=self.request.user,
-            note_type__in=['defect', 'defect_statement']
-        )
-
-    def get_context_data(self, **kwargs):
-        """Добавляет в контекст форму для загрузки изображений"""
-        context = super().get_context_data(**kwargs)
-        context['image_form'] = NoteImageForm()
-        context['images'] = self.object.images.all()
-        return context
-
-    def post(self, request, *args, **kwargs):
-        """Обработка загрузки изображений"""
-        self.object = self.get_object()
-        image_form = NoteImageForm(request.POST, request.FILES)
-
-        if image_form.is_valid():
-            image = image_form.save(commit=False)
-            image.note = self.object
-            image.save()
-            messages.success(request, "Изображение успешно добавлено!")
-            return redirect('notes:add_images', pk=self.object.pk)
-
-        messages.error(request, "Ошибка при загрузке изображения")
-        return self.render_to_response(
-            self.get_context_data(image_form=image_form))
+class DefectImageCreateView(CreateView):
+    model = DefectImage
+    form_class = DefectImageForm
+    template_name = 'notes/add_defect_image.html'
 
     def get_success_url(self):
-        return reverse_lazy('notes:add_images', kwargs={'pk': self.object.pk})
+        return reverse_lazy('notes:detail', kwargs={'pk': self.kwargs['note_id']})
 
+    def form_valid(self, form):
+        form.instance.note_id = self.kwargs['note_id']
+        return super().form_valid(form)
 
-def download_document(request, pk):
-    """
-    Генерирует и скачивает документ в зависимости от типа записи.
+# class AddImagesView(LoginRequiredMixin, UpdateView):
+#     """
+#     Представление для добавления изображений к записи.
+#
+#     Особенности:
+#     - Работает только с записями типа 'defect' и 'defect_statement'
+#     - Использует отдельную форму для загрузки изображений
+#     """
+#     model = Note
+#     template_name = "notes/add_images.html"
+#     fields = []
+#
+#     def get_queryset(self):
+#         """Ограничивает доступ только к записям текущего пользователя"""
+#         return Note.objects.filter(
+#             user=self.request.user,
+#             note_type__in=['defect', 'defect_statement']
+#         )
+#
+#     def get_context_data(self, **kwargs):
+#         """Добавляет в контекст форму для загрузки изображений"""
+#         context = super().get_context_data(**kwargs)
+#         context['images'] = self.object.images.all()
+#         return context
+#
+#     def post(self, request, *args, **kwargs):
+#         """Обработка загрузки изображений"""
+#         self.object = self.get_object()
+#         image_form = NoteImageForm(request.POST, request.FILES)
+#
+#         if image_form.is_valid():
+#             image = image_form.save(commit=False)
+#             image.note = self.object
+#             image.save()
+#             messages.success(request, "Изображение успешно добавлено!")
+#             return redirect('notes:add_images', pk=self.object.pk)
+#
+#         messages.error(request, "Ошибка при загрузке изображения")
+#         return self.render_to_response(
+#             self.get_context_data(image_form=image_form))
+#
+#     def get_success_url(self):
+#         return reverse_lazy('notes:add_images', kwargs={'pk': self.object.pk})
 
-    Улучшения:
-    1. Поддержка только актуальных типов документов (без hidden_act)
-    2. Использование services.py для генерации
-    3. Улучшенное логирование и обработка ошибок
-    4. Безопасная работа с путями файлов
-    5. Человекочитаемые имена файлов при скачивании
-    """
+class DefectStatementCreateView(CreateView):
+    model = DefectStatement
+    form_class = DefectStatementForm
+    template_name = 'notes/defect_statement_form.html'
 
-    logger.info(f"User {request.user} requested document download for note ID={pk}")
-
-    try:
-        note = get_object_or_404(Note, pk=pk, user=request.user)
-
-        if note.note_type != "defect_statement":
-            logger.warning(f"Document generation not supported for type: {note.note_type}")
-            messages.warning(request, "Документ доступен только для дефектных ведомостей")
-            return redirect('notes:detail', pk=pk)
-
-        # Генерация документа через сервисный слой
-        from .services import save_defect_statement
-        relative_path = save_defect_statement(note)
-        absolute_path = os.path.join(settings.MEDIA_ROOT, relative_path)
-
-        if not os.path.exists(absolute_path):
-            raise FileNotFoundError(f"Generated document not found at {absolute_path}")
-
-        # Формирование читаемого имени файла
-        filename = f"Дефектная ведомость {note.statement_number or note.id}.docx"
-        safe_filename = filename.replace(" ", "_")
-
-        logger.info(f"Serving document: {absolute_path}")
-        response = FileResponse(
-            open(absolute_path, 'rb'),
-            content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            as_attachment=True,
-            filename=safe_filename
-        )
-
-        # Добавляем оригинальное имя файла в заголовки
-        response['X-Filename'] = filename
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        response = super().form_valid(form)
+        # Сохраняем порядок дефектов
+        for order, defect in enumerate(form.cleaned_data['defects'], start=1):
+            self.object.defectinstatement_set.create(defect=defect, order=order)
         return response
 
-    except Exception as e:
-        logger.error(f"Document generation failed for note {pk}: {str(e)}", exc_info=True)
-        messages.error(request, f"Ошибка при генерации документа: {str(e)}")
-        return redirect('notes:detail', pk=pk)
+    def get_success_url(self):
+        return reverse_lazy('notes:defect_statement_detail', kwargs={'pk': self.object.pk})
+
+
+class DefectStatementListView(ListView):
+    model = DefectStatement
+    template_name = 'notes/defect_statement_list.html'
+    context_object_name = 'statements'
+    paginate_by = 10
+
+
+class DefectStatementDetailView(DetailView):
+    model = DefectStatement
+    template_name = 'notes/defect_statement_detail.html'
+    context_object_name = 'statement'
+
+
+def download_statement(request, pk):
+    statement = DefectStatement.objects.get(pk=pk)
+    doc = Document()
+
+    # Заголовок
+    doc.add_heading(f'Дефектная ведомость №{statement.statement_number}', level=1)
+    doc.add_paragraph(statement.title)
+
+    # Таблица дефектов
+    table = doc.add_table(rows=1, cols=5)
+    table.style = 'Table Grid'
+
+    # Заголовки таблицы
+    hdr = table.rows[0].cells
+    hdr[0].text = '№'
+    hdr[1].text = 'Дефект'
+    hdr[2].text = 'Описание'
+    hdr[3].text = 'Фото'
+    hdr[4].text = 'Рекомендации'
+
+    # Заполнение таблицы
+    for idx, item in enumerate(statement.defectinstatement_set.all(), start=1):
+        row = table.add_row().cells
+        defect = item.defect
+        row[0].text = str(idx)
+        row[1].text = defect.title
+        row[2].text = defect.content[:100]
+        row[3].text = "Есть" if defect.defect_images.exists() else "Нет"
+
+        # Берем первую рекомендацию из изображений дефекта
+        first_img = defect.defect_images.first()
+        row[4].text = first_img.description if first_img else ""
+
+    # Генерация файла
+    buffer = BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+
+    filename = f'defect_statement_{statement.statement_number}.docx'
+    return FileResponse(buffer, as_attachment=True, filename=filename)
 
 
 def send_to_telegram_view(request, pk):
