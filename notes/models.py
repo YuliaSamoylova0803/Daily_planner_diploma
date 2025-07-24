@@ -56,11 +56,49 @@ class Note(models.Model):
         return f"{self.get_note_type_display()}: {self.title}"
 
 
-class NoteImage(models.Model):
-    note = models.ForeignKey(Note, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(verbose_name="Фото", upload_to="note_images/")
-    description = models.CharField(max_length=200, blank=True, verbose_name="Описание")
+class DefectImage(models.Model):
+    """Модель для изображений дефектов с описанием"""
+    note = models.ForeignKey(
+        Note,
+        on_delete=models.CASCADE,
+        related_name='defect_images',
+        limit_choices_to={'note_type': 'defect'}  # Связь только с дефектами
+    )
+    image = models.ImageField(upload_to='defects/%Y/%m/%d/', verbose_name="Фото дефекта")
+    description = models.TextField(verbose_name="Описание дефекта", blank=True)
+    required_work = models.TextField(verbose_name="Необходимые работы", blank=True)
+    repair_deadline = models.DateField(verbose_name="Срок устранения", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = "Изображение дефекта"
+        verbose_name_plural = "Изображения дефектов"
+        ordering = ['created_at']
+
     def __str__(self):
-        return f"Изображение дефекта для {self.note.title}"
+        return f"Фото дефекта #{self.id}"
+
+
+class DefectStatement(models.Model):
+    """Дефектная ведомость"""
+    title = models.CharField(max_length=200, verbose_name="Название ведомости")
+    statement_number = models.CharField(max_length=50, verbose_name="Номер ведомости")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    approval_date = models.DateField(verbose_name="Дата утверждения", null=True, blank=True)
+    approved_by = models.CharField(verbose_name='Утвердил', max_length=200, blank=True)
+    defects = models.ManyToManyField(Note, through='DefectInStatement', limit_choices_to={'note_type': 'defect'})
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Дефектная ведомость №{self.statement_number}"
+
+
+class DefectInStatement(models.Model):
+    """Связь дефектов с ведомостью"""
+    defect = models.ForeignKey(Note, on_delete=models.CASCADE)
+    statement = models.ForeignKey(DefectStatement, on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
