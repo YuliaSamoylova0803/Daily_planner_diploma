@@ -151,6 +151,42 @@ bash
 docker-compose exec web python manage.py migrate
 docker-compose exec web python manage.py createsuperuser
 
+## 🐳 Docker Setup
+### Запуск проекта
+Соберите и запустите контейнеры:
+
+bash
+docker-compose up --build -d
+После первого запуска выполните миграции (если не добавлены в команду запуска):
+
+bash
+docker-compose exec backend python manage.py migrate
+Соберите статические файлы:
+
+bash
+docker-compose exec backend python manage.py collectstatic --noinput
+Управление контейнерами
+Остановить контейнеры:
+
+bash
+docker-compose down
+Остановить с удалением томов (очистка данных БД):
+
+bash
+docker-compose down -v
+Просмотр логов:
+
+bash
+docker-compose logs -f  # Все сервисы
+docker-compose logs -f backend  # Только backend
+Сервисы
+Сервис	Порт	Описание
+Nginx	80	Основной веб-интерфейс
+Django	8000	Разработческий сервер Django
+PostgreSQL	5432	База данных
+Redis	6379	Кеширование и очереди
+Переменные окружения
+
 ## 📧 Контакты
 Автор: Юлия Самойлова
 Email: Ulia629736@yandex.ru
