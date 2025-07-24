@@ -1,16 +1,15 @@
-import os
 import logging
+import os
 from io import BytesIO
+from urllib.parse import quote
+
+import requests
 from django.conf import settings
+from django.utils import timezone
 from docx import Document
 from docx.shared import Cm
-import requests
-from openpyxl import Workbook
-from urllib.parse import quote
-from django.utils import timezone
 
 logger = logging.getLogger(__name__)
-
 
 
 def generate_defect_statement(note):
@@ -27,23 +26,23 @@ def generate_defect_statement(note):
         ValueError: Если передан объект неправильного типа
         IOError: При ошибках работы с изображениями
     """
-    if note.note_type != 'defect_statement':
+    if note.note_type != "defect_statement":
         raise ValueError("Эта функция предназначена только для дефектных ведомостей")
 
     doc = Document()
 
     try:
         # Заголовок документа
-        doc.add_heading(f'Дефектная ведомость №{note.statement_number}', level=1)
-        doc.add_paragraph(f'на текущий ремонт помещения (здания)')
+        doc.add_heading(f"Дефектная ведомость №{note.statement_number}", level=1)
+        doc.add_paragraph(f"на текущий ремонт помещения (здания) {note.address}")
 
         # Основная информация
-        doc.add_paragraph(f'Наименование объекта: {note.object_name}')
-        doc.add_paragraph(f'Адрес объекта: {note.address}')
+        doc.add_paragraph(f"Наименование объекта: {note.object_name}")
+        doc.add_paragraph(f"Адрес объекта: {note.address}")
         doc.add_paragraph(f'Дата составления: {timezone.now().strftime("%d.%m.%Y")}')
 
         # Таблица с дефектами
-        table = _create_defects_table(doc, note)
+        _create_defects_table(doc, note)
 
         # Подписи
         _add_signatures_section(doc, note)
@@ -62,7 +61,7 @@ def generate_defect_statement(note):
 def _create_defects_table(doc, note):
     """Создает и заполняет таблицу дефектов"""
     table = doc.add_table(rows=1, cols=6)
-    table.style = 'Table Grid'
+    table.style = "Table Grid"
 
     # Настройка ширины колонок
     widths = (Cm(1.5), Cm(3.5), Cm(5), Cm(4), Cm(2), Cm(2.5))
@@ -70,8 +69,14 @@ def _create_defects_table(doc, note):
         table.columns[i].width = width
 
     # Заголовки таблицы
-    headers = ["№ п/п", "Фото дефекта", "Обнаруженные дефекты",
-               "Необходимые работы", "Объем", "Сроки"]
+    headers = [
+        "№ п/п",
+        "Фото дефекта",
+        "Обнаруженные дефекты",
+        "Необходимые работы",
+        "Объем",
+        "Сроки",
+    ]
 
     for i, header in enumerate(headers):
         cell = table.rows[0].cells[i]
@@ -79,7 +84,7 @@ def _create_defects_table(doc, note):
         cell.paragraphs[0].runs[0].font.bold = True
 
     # Заполнение данными
-    for i, defect in enumerate(note.defects.all().order_by('created_at'), start=1):
+    for i, defect in enumerate(note.defects.all().order_by("created_at"), start=1):
         row_cells = table.add_row().cells
         row_cells[0].text = str(i)
         row_cells[2].text = defect.content
@@ -100,7 +105,9 @@ def _add_defect_image(cell, defect):
             run = paragraph.add_run()
             run.add_picture(image.image.path, width=Cm(3), height=Cm(2))
         except Exception as e:
-            logger.warning(f"Не удалось добавить изображение для дефекта {defect.id}: {str(e)}")
+            logger.warning(
+                f"Не удалось добавить изображение для дефекта {defect.id}: {str(e)}"
+            )
             cell.text = "Фото (ошибка загрузки)"
 
 
@@ -128,13 +135,15 @@ def save_defect_statement(note):
     """
     try:
         doc_buffer = generate_defect_statement(note)
-        filename = f"defect_statement_{note.id}_{timezone.now().strftime('%Y%m%d_%H%M')}.docx"
+        filename = (
+            f"defect_statement_{note.id}_{timezone.now().strftime('%Y%m%d_%H%M')}.docx"
+        )
         filename = quote(filename)  # Экранируем специальные символы
         filepath = os.path.join(settings.MEDIA_ROOT, "generated_docs", filename)
 
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
-        with open(filepath, 'wb') as f:
+        with open(filepath, "wb") as f:
             f.write(doc_buffer.getvalue())
 
         return os.path.join("generated_docs", filename)
@@ -155,8 +164,8 @@ def send_to_telegram(note, chat_id=None):
         bool: True если отправка успешна, False в случае ошибки
     """
     try:
-        TELEGRAM_TOKEN = getattr(settings, 'TELEGRAM_TOKEN', '')
-        TELEGRAM_CHAT_ID = chat_id or getattr(settings, 'TELEGRAM_CHAT_ID', '')
+        TELEGRAM_TOKEN = getattr(settings, "TELEGRAM_TOKEN", "")
+        TELEGRAM_CHAT_ID = chat_id or getattr(settings, "TELEGRAM_CHAT_ID", "")
 
         if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
             logger.warning("Не настроены Telegram credentials")
@@ -165,7 +174,7 @@ def send_to_telegram(note, chat_id=None):
         base_url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
         text = _prepare_telegram_message(note)
 
-        if note.note_type == 'defect_statement':
+        if note.note_type == "defect_statement":
             return _send_telegram_document(base_url, TELEGRAM_CHAT_ID, note, text)
         return _send_telegram_message(base_url, TELEGRAM_CHAT_ID, text)
 
@@ -194,16 +203,16 @@ def _send_telegram_document(base_url, chat_id, note, text):
     """Отправляет документ в Telegram"""
     try:
         doc_buffer = generate_defect_statement(note)
-        files = {'document': (f'defect_{note.id}.docx', doc_buffer)}
+        files = {"document": (f"defect_{note.id}.docx", doc_buffer)}
         response = requests.post(
             f"{base_url}/sendDocument",
             data={
-                'chat_id': chat_id,
-                'caption': text[:1024],  # Ограничение Telegram
-                'parse_mode': 'Markdown'
+                "chat_id": chat_id,
+                "caption": text[:1024],  # Ограничение Telegram
+                "parse_mode": "Markdown",
             },
             files=files,
-            timeout=10
+            timeout=10,
         )
         return response.status_code == 200
     except requests.exceptions.RequestException as e:
@@ -216,12 +225,8 @@ def _send_telegram_message(base_url, chat_id, text):
     try:
         response = requests.post(
             f"{base_url}/sendMessage",
-            json={
-                'chat_id': chat_id,
-                'text': text,
-                'parse_mode': 'Markdown'
-            },
-            timeout=5
+            json={"chat_id": chat_id, "text": text, "parse_mode": "Markdown"},
+            timeout=5,
         )
         return response.status_code == 200
     except requests.exceptions.RequestException as e:
