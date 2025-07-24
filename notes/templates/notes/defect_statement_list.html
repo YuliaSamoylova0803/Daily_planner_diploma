@@ -1,0 +1,26 @@
+{% extends 'notes/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Дефектные ведомости</h2>
+    <a href="{% url 'notes:defect_statement_create' %}" class="btn btn-primary mb-3">
+        <i class="fas fa-plus"></i> Новая ведомость
+    </a>
+    
+    <div class="list-group">
+        {% for statement in statements %}
+        <a href="{% url 'notes:defect_statement_detail' statement.pk %}" class="list-group-item list-group-item-action">
+            <div class="d-flex justify-content-between">
+                <h5>№{{ statement.statement_number }} - {{ statement.title }}</h5>
+                <span class="text-muted">{{ statement.created_at|date:"d.m.Y" }}</span>
+            </div>
+            <small>Дефектов: {{ statement.defects.count }}</small>
+        </a>
+        {% empty %}
+        <div class="alert alert-info">Нет созданных ведомостей</div>
+        {% endfor %}
+    </div>
+    
+
+</div>
+{% endblock %}

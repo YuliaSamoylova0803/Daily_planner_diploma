@@ -15,10 +15,10 @@
                 <div class="col-md-4 mb-4 mb-md-0">
                     <h5 class="neon-title">Навигация</h5>
                     <ul class="neon-links list-unstyled">
-                        <li><a href="#"><span class="neon-bullet"></span>Главная</a></li>
-                        <li><a href="#"><span class="neon-bullet"></span>Личный дневник</a></li>
-                        <li><a href="#"><span class="neon-bullet"></span>Рабочий журнал</a></li>
-                        <li><a href="#"><span class="neon-bullet"></span>Проекты</a></li>
+                        <li><a href="{% url 'notes:base' %}"><span class="neon-bullet"></span>Главная</a></li>
+                        <li><a href="{% url 'notes:list' %}"><span class="neon-bullet"></span>Все записи</a></li>
+                        <li><a href="{% url 'notes:create' %}"><span class="neon-bullet"></span>Рабочий журнал</a></li>
+                        <li><a href="{% url 'notes:defect_statement_list' %}"><span class="neon-bullet"></span>Ведомости</a></li>
                         <li><a href="#"><span class="neon-bullet"></span>Отчеты</a></li>
                     </ul>
                 </div>

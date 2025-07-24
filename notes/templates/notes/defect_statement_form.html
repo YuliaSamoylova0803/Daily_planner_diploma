@@ -1,0 +1,56 @@
+{% extends 'notes/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Создание дефектной ведомости</h2>
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            {{ form.title.label_tag }}
+            {{ form.title }}
+            <small class="text-muted">{{ form.title.help_text }}</small>
+            {% if form.title.errors %}
+                <div class="text-danger">{{ form.title.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            {{ form.statement_number.label_tag }}
+            {{ form.statement_number }}
+            {% if form.statement_number.errors %}
+                <div class="text-danger">{{ form.statement_number.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label>Выберите дефекты:</label>
+            <div class="border p-3">
+                {{ form.defects }}
+                {% if form.defects.errors %}
+                    <div class="text-danger">{{ form.defects.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                {{ form.approval_date.label_tag }}
+                {{ form.approval_date }}
+                {% if form.approval_date.errors %}
+                    <div class="text-danger">{{ form.approval_date.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                {{ form.approved_by.label_tag }}
+                {{ form.approved_by }}
+                {% if form.approved_by.errors %}
+                    <div class="text-danger">{{ form.approved_by.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Создать ведомость</button>
+    </form>
+</div>
+{% endblock %}

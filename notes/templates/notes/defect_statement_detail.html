@@ -1,0 +1,80 @@
+{% extends 'notes/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Дефектная ведомость №{{ statement.statement_number }}</h3>
+            <h4>{{ statement.title }}</h4>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>№</th>
+                            <th>Дефект</th>
+                            <th>Описание</th>
+                            <th>Фото</th>
+                            <th>Рекомендации</th>
+                            <th>Дата создания</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for defect in statement.defectinstatement_set.all %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ defect.defect.title }}</td>
+                            <td>{{ defect.defect.content }}</td>
+                            <td>
+                                {% if defect.defect.images.all %}
+                                    <div class="d-flex flex-wrap">
+                                        {% for image in defect.defect.images.all %}
+                                            <img src="{{ image.image.url }}" class="img-thumbnail m-1" style="max-height: 100px;">
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    Нет
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if defect.defect.images.first %}
+                                    {{ defect.defect.images.first.description|default:"Нет рекомендаций" }}
+                                {% else %}
+                                    Нет рекомендаций
+                                {% endif %}
+                            </td>
+                            <td>{{ defect.defect.created_at|date:"d.m.Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <strong>Дата утверждения:</strong> {{ statement.approval_date|date:"d.m.Y" }}
+                </div>
+                <div>
+                    <strong>Утвердил:</strong> {{ statement.approved_by }}
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <a href="{% url 'notes:defect_statement_download' statement.pk %}"
+                   class="btn btn-primary mr-2">
+                    <i class="fas fa-download"></i> Скачать ведомость (DOCX)
+                </a>
+                <a href="{% url 'notes:defect_statement_list' %}"
+                   class="btn btn-outline-secondary">
+                    <i class="fas fa-list"></i> К списку ведомостей
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
