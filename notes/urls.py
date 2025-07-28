@@ -2,11 +2,20 @@ from django.urls import path
 
 from notes.apps import NotesConfig
 
-from .views import (BaseView, DefectImageCreateView, DefectStatementCreateView,
-                    DefectStatementDetailView, DefectStatementListView,
-                    NoteCreateView, NoteDeleteView, NoteDetailView,
-                    NoteListView, NoteUpdateView, download_statement,
-                    send_to_telegram_view)
+from .views import (
+    BaseView,
+    DefectImageCreateView,
+    DefectStatementCreateView,
+    DefectStatementDetailView,
+    DefectStatementListView,
+    NoteCreateView,
+    NoteDeleteView,
+    NoteDetailView,
+    NoteListView,
+    NoteUpdateView,
+    download_statement,
+    send_to_telegram_view,
+)
 
 app_name = NotesConfig.name  # или можно просто указать app_name = 'notes'
 
