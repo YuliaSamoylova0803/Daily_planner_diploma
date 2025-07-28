@@ -10,8 +10,14 @@ from django.views.generic import DeleteView, DetailView, ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from docx import Document
 
-from .forms import (DefectImageForm, DefectNoteForm, DefectStatementForm,
-                    PersonalNoteForm, WorkNoteForm, get_note_form_class)
+from .forms import (
+    DefectImageForm,
+    DefectNoteForm,
+    DefectStatementForm,
+    PersonalNoteForm,
+    WorkNoteForm,
+    get_note_form_class,
+)
 from .models import DefectImage, DefectStatement, Note
 from .services import send_to_telegram as send_to_telegram_service
 
@@ -61,6 +67,8 @@ class NoteListView(LoginRequiredMixin, ListView):
     """
 
     model = Note
+    login_url = reverse_lazy("users:login")
+    redirect_field_name = "next"
     template_name = "notes/note_list.html"
     context_object_name = "notes"
     paginate_by = 10
@@ -300,7 +308,7 @@ class DefectImageCreateView(CreateView):
 #         return reverse_lazy('notes:add_images', kwargs={'pk': self.object.pk})
 
 
-class DefectStatementCreateView(CreateView):
+class DefectStatementCreateView(LoginRequiredMixin, CreateView):
     model = DefectStatement
     form_class = DefectStatementForm
     template_name = "notes/defect_statement_form.html"
@@ -319,14 +327,14 @@ class DefectStatementCreateView(CreateView):
         )
 
 
-class DefectStatementListView(ListView):
+class DefectStatementListView(LoginRequiredMixin, ListView):
     model = DefectStatement
     template_name = "notes/defect_statement_list.html"
     context_object_name = "statements"
     paginate_by = 10
 
 
-class DefectStatementDetailView(DetailView):
+class DefectStatementDetailView(LoginRequiredMixin, DetailView):
     model = DefectStatement
     template_name = "notes/defect_statement_detail.html"
     context_object_name = "statement"
