@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
+from django.urls import reverse_lazy
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
@@ -44,6 +45,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "users",
     "notes",
+    "rest_framework",
+    "drf_yasg",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -54,6 +58,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -75,18 +80,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+# REST_FRAMEWORK = {
+#     "DEFAULT_AUTHENTICATION_CLASSES": (
+#         "rest_framework_simplejwt.authentication.JWTAuthentication",
+#         # Другие классы аутентификации при необходимости
+#     ),
+# }
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.getenv("NAME"),
-        "USER": os.getenv("USER"),
-        "PASSWORD": os.getenv("PASSWORD"),
-        "HOST": os.getenv("HOST"),
-        "PORT": os.getenv("PORT"),
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": "localhost",  # db для docker compose
+        "PORT": "5432",
     }
 }
 
@@ -125,9 +136,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / "staticfiles"
+# Настройки статических файлов
+STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static') # Для collectstatic
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # Указывает на папку с исходными статическими файлами
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -154,7 +169,7 @@ AUTH_USER_MODEL = "users.User"
 
 LOGIN_REDIRECT_URL = "notes:base"
 LOGOUT_REDIRECT_URL = "notes:base"
-LOGIN_URL = "users/login/"
+LOGIN_URL = reverse_lazy('users:login')
 
 LOGGING = {
     "version": 1,
@@ -181,3 +196,15 @@ LOGGING = {
 
 TELEGRAM_TOKEN = "7457606254:AAHGfjZ8rvFCLkNDJRxSoeGuj6hUcydpMGQ"
 TELEGRAM_CHAT_ID = "1635212282"
+
+# Для корректной работы за прокси
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+
+CORS_ALLOW_ALL_ORIGINS = True  # Для разработки - разрешает все домены
+# ИЛИ более безопасный вариант:
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # React/Vue dev server
+    "http://127.0.0.1:3000",
+    "https://ваш-продакшен-домен.com",
+]
