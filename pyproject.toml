@@ -23,6 +23,7 @@ djangorestframework = "^3.16.0"
 drf-yasg = "^1.21.10"
 django-cors-headers = "^4.7.0"
 django-ninja = "^1.4.3"
+djangorestframework-simplejwt = "^5.5.1"
 
 
 [tool.poetry.group.lint.dependencies]
