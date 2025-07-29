@@ -1,39 +1,36 @@
-from django.contrib.auth.decorators import login_required
 from django.http import FileResponse
 from drf_yasg import openapi
-from ninja import NinjaAPI, Schema, ModelSchema, Field
-from typing import List, Optional
 
 from rest_framework.generics import get_object_or_404
 
-from .models import Note, DefectStatement, User
-from ninja.security import HttpBearer
-from .services import DocumentService
+from .models import Note
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from .services import (
     DefectStatementGenerator,
-    DocumentService,
-    TelegramNotificationService
+    TelegramNotificationService,
 )
 
 
 @swagger_auto_schema(
-    method='post',
+    method="post",
     operation_summary="Генерация ведомости",
     operation_description="Создает DOCX файл дефектной ведомости",
     responses={
-        200: openapi.Response('File attachment', schema=openapi.Schema(type=openapi.TYPE_FILE)),
-        400: openapi.Response('Bad Request', schema=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'error': openapi.Schema(type=openapi.TYPE_STRING)
-            }
-        ))
-    }
+        200: openapi.Response(
+            "File attachment", schema=openapi.Schema(type=openapi.TYPE_FILE)
+        ),
+        400: openapi.Response(
+            "Bad Request",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={"error": openapi.Schema(type=openapi.TYPE_STRING)},
+            ),
+        ),
+    },
 )
-@api_view(['POST'])
+@api_view(["POST"])
 def generate_statement(request, pk):
     note = get_object_or_404(Note, pk=pk)
     try:
@@ -45,25 +42,27 @@ def generate_statement(request, pk):
 
 
 @swagger_auto_schema(
-    method='post',
+    method="post",
     operation_summary="Отправка в Telegram",
     operation_description="Отправляет уведомление в Telegram чат",
     responses={
-        200: openapi.Response('Success', schema=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'status': openapi.Schema(type=openapi.TYPE_STRING)
-            }
-        )),
-        500: openapi.Response('Server Error', schema=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'error': openapi.Schema(type=openapi.TYPE_STRING)
-            }
-        ))
-    }
+        200: openapi.Response(
+            "Success",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={"status": openapi.Schema(type=openapi.TYPE_STRING)},
+            ),
+        ),
+        500: openapi.Response(
+            "Server Error",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={"error": openapi.Schema(type=openapi.TYPE_STRING)},
+            ),
+        ),
+    },
 )
-@api_view(['POST'])
+@api_view(["POST"])
 def send_telegram_notification(request, pk):
     note = get_object_or_404(Note, pk=pk)
     service = TelegramNotificationService()
@@ -72,6 +71,7 @@ def send_telegram_notification(request, pk):
     if success:
         return Response({"status": "Уведомление отправлено"})
     return Response({"error": "Ошибка отправки"}, status=500)
+
 
 # api = NinjaAPI(
 #     title="Daily Planner API",

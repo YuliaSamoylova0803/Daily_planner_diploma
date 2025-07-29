@@ -51,7 +51,9 @@ class BaseDocumentGenerator:
 
     def _build_document_structure(self):
         """Построение структуры документа (должен быть переопределен)"""
-        raise NotImplementedError("Метод _build_document_structure должен быть реализован")
+        raise NotImplementedError(
+            "Метод _build_document_structure должен быть реализован"
+        )
 
     def _save_to_buffer(self) -> BytesIO:
         """Сохранение документа в буфер памяти"""
@@ -77,7 +79,9 @@ class DefectStatementGenerator(BaseDocumentGenerator):
     def validate_note_type(self):
         """Проверка, что заметка является дефектной ведомостью"""
         if self.note.note_type != "defect_statement":
-            raise ValueError("Эта функция предназначена только для дефектных ведомостей")
+            raise ValueError(
+                "Эта функция предназначена только для дефектных ведомостей"
+            )
 
     def _build_document_structure(self):
         """Построение структуры дефектной ведомости"""
@@ -88,14 +92,20 @@ class DefectStatementGenerator(BaseDocumentGenerator):
 
     def _add_header(self):
         """Добавление заголовка документа"""
-        self.doc.add_heading(f"Дефектная ведомость №{self.note.statement_number}", level=1)
-        self.doc.add_paragraph(f"на текущий ремонт помещения (здания) {self.note.address}")
+        self.doc.add_heading(
+            f"Дефектная ведомость №{self.note.statement_number}", level=1
+        )
+        self.doc.add_paragraph(
+            f"на текущий ремонт помещения (здания) {self.note.address}"
+        )
 
     def _add_main_info(self):
         """Добавление основной информации"""
         self.doc.add_paragraph(f"Наименование объекта: {self.note.object_name}")
         self.doc.add_paragraph(f"Адрес объекта: {self.note.address}")
-        self.doc.add_paragraph(f'Дата составления: {timezone.now().strftime("%d.%m.%Y")}')
+        self.doc.add_paragraph(
+            f'Дата составления: {timezone.now().strftime("%d.%m.%Y")}'
+        )
 
     def _create_defects_table(self):
         """Создание и заполнение таблицы дефектов"""
@@ -109,8 +119,12 @@ class DefectStatementGenerator(BaseDocumentGenerator):
 
         # Заголовки таблицы
         headers = [
-            "№ п/п", "Фото дефекта", "Обнаруженные дефекты",
-            "Необходимые работы", "Объем", "Сроки"
+            "№ п/п",
+            "Фото дефекта",
+            "Обнаруженные дефекты",
+            "Необходимые работы",
+            "Объем",
+            "Сроки",
         ]
 
         for i, header in enumerate(headers):
@@ -119,7 +133,9 @@ class DefectStatementGenerator(BaseDocumentGenerator):
             cell.paragraphs[0].runs[0].font.bold = True
 
         # Заполнение данными
-        for i, defect in enumerate(self.note.defects.all().order_by("created_at"), start=1):
+        for i, defect in enumerate(
+            self.note.defects.all().order_by("created_at"), start=1
+        ):
             row_cells = table.add_row().cells
             row_cells[0].text = str(i)
             row_cells[2].text = defect.content
@@ -143,7 +159,9 @@ class DefectStatementGenerator(BaseDocumentGenerator):
                 run = paragraph.add_run()
                 run.add_picture(image.image.path, width=Cm(3), height=Cm(2))
             except Exception as e:
-                logger.warning(f"Не удалось добавить изображение для дефекта {defect.id}: {str(e)}")
+                logger.warning(
+                    f"Не удалось добавить изображение для дефекта {defect.id}: {str(e)}"
+                )
                 cell.text = "Фото (ошибка загрузки)"
 
     def _add_signatures_section(self):
@@ -152,7 +170,9 @@ class DefectStatementGenerator(BaseDocumentGenerator):
         if self.note.approved_by:
             self.doc.add_paragraph(f"\nУтверждаю: {self.note.approved_by}")
         if self.note.approval_date:
-            self.doc.add_paragraph(f"Дата: {self.note.approval_date.strftime('%d.%m.%Y')}")
+            self.doc.add_paragraph(
+                f"Дата: {self.note.approval_date.strftime('%d.%m.%Y')}"
+            )
 
 
 class DocumentService:
@@ -292,11 +312,7 @@ class TelegramNotificationService:
         try:
             response = requests.post(
                 f"https://api.telegram.org/bot{self.token}/sendMessage",
-                json={
-                    "chat_id": chat_id,
-                    "text": text,
-                    "parse_mode": "Markdown"
-                },
+                json={"chat_id": chat_id, "text": text, "parse_mode": "Markdown"},
                 timeout=5,
             )
             return response.status_code == 200

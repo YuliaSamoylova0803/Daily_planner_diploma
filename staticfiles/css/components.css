@@ -1,0 +1,520 @@
+/* Вариант 2: Неоновая тема с геометрическими формами */
+:root {
+--neon-blue: #4cc9f0;
+--neon-pink: #f72585;
+--neon-purple: #7209b7;
+--neon-violet: #4361ee;
+--dark-bg: #0f0f1a;
+--darker-bg: #0a0a12;
+}
+
+body {
+font-family: 'Roboto', sans-serif;
+background-color: var(--dark-bg);
+color: #fff;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+
+.neon-navbar {
+background-color: var(--darker-bg);
+border-bottom: 1px solid var(--neon-blue);
+box-shadow: 0 0 15px rgba(76, 201, 240, 0.3);
+font-family: 'Orbitron', sans-serif;
+}
+
+.neon-logo {
+width: 40px;
+height: 40px;
+background: var(--neon-blue);
+color: var(--dark-bg);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.2rem;
+box-shadow: 0 0 10px var(--neon-blue);
+transition: all 0.3s ease;
+}
+
+.neon-logo:hover {
+transform: scale(1.1);
+box-shadow: 0 0 20px var(--neon-blue);
+}
+
+.neon-navbar .navbar-brand {
+color: var(--neon-blue) !important;
+font-weight: 700;
+text-shadow: 0 0 5px rgba(76, 201, 240, 0.7);
+letter-spacing: 1px;
+}
+
+.navbar-nav .nav-link {
+color: rgba(255, 255, 255, 0.8);
+margin: 0 10px;
+position: relative;
+}
+
+.navbar-nav .nav-link:hover {
+color: var(--neon-blue);
+}
+
+.navbar-nav .nav-link::after {
+content: '';
+position: absolute;
+bottom: -5px;
+left: 0;
+width: 0;
+height: 2px;
+background: var(--neon-blue);
+transition: width 0.3s;
+}
+
+.navbar-nav .nav-link:hover::after {
+width: 100%;
+}
+
+.main-content {
+flex: 1;
+padding: 40px 0;
+position: relative;
+overflow: hidden;
+}
+
+.main-content::before {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background:
+radial-gradient(circle at 20% 30%, rgba(76, 201, 240, 0.1) 0%, transparent 20%),
+radial-gradient(circle at 80% 70%, rgba(247, 37, 133, 0.1) 0%, transparent 20%);
+z-index: -1;
+}
+
+.neon-card {
+background: rgba(15, 15, 26, 0.7);
+border: 1px solid rgba(76, 201, 240, 0.2);
+border-radius: 15px;
+box-shadow: 0 0 20px rgba(76, 201, 240, 0.1);
+transition: all 0.3s ease;
+backdrop-filter: blur(10px);
+overflow: hidden;
+margin-bottom: 30px;
+}
+
+.neon-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 5px 30px rgba(76, 201, 240, 0.3);
+border-color: var(--neon-blue);
+}
+
+.neon-card-header {
+background: linear-gradient(90deg, rgba(76, 201, 240, 0.2), rgba(114, 9, 183, 0.2));
+border-bottom: 1px solid rgba(76, 201, 240, 0.3);
+padding: 15px 20px;
+font-weight: 700;
+color: var(--neon-blue);
+position: relative;
+}
+
+.neon-card-header::before {
+content: '';
+position: absolute;
+bottom: -1px;
+left: 0;
+width: 100%;
+height: 1px;
+background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+}
+
+.neon-card-body {
+padding: 20px;
+}
+
+.neon-btn {
+background: transparent;
+color: var(--neon-blue);
+border: 1px solid var(--neon-blue);
+border-radius: 30px;
+padding: 8px 20px;
+font-weight: 600;
+letter-spacing: 1px;
+transition: all 0.3s ease;
+position: relative;
+overflow: hidden;
+z-index: 1;
+}
+
+.neon-btn::before {
+content: '';
+position: absolute;
+top: 0;
+left: -100%;
+width: 100%;
+height: 100%;
+background: linear-gradient(90deg, transparent, rgba(76, 201, 240, 0.3), transparent);
+transition: all 0.5s ease;
+z-index: -1;
+}
+
+.neon-btn:hover {
+color: #fff;
+box-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+border-color: #fff;
+}
+
+.neon-btn:hover::before {
+left: 100%;
+}
+
+.neon-footer {
+background-color: var(--darker-bg);
+color: #fff;
+position: relative;
+overflow: hidden;
+}
+
+.neon-footer::before {
+content: "";
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 3px;
+background: linear-gradient(90deg, var(--neon-violet), var(--neon-blue), var(--neon-pink));
+}
+
+.neon-logo-lg {
+width: 60px;
+height: 60px;
+background: var(--neon-blue);
+color: var(--dark-bg);
+border-radius: 15px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.8rem;
+box-shadow: 0 0 15px var(--neon-blue);
+transform: rotate(45deg);
+transition: all 0.3s ease;
+}
+
+.neon-logo-lg:hover {
+transform: rotate(0deg) scale(1.1);
+box-shadow: 0 0 25px var(--neon-blue);
+}
+
+.neon-logo-lg i {
+transform: rotate(-45deg);
+transition: transform 0.3s ease;
+}
+
+.neon-logo-lg:hover i {
+transform: rotate(0deg);
+}
+
+.neon-title {
+color: var(--neon-blue);
+position: relative;
+padding-bottom: 10px;
+margin-bottom: 20px;
+font-family: 'Orbitron', sans-serif;
+letter-spacing: 1px;
+}
+
+.neon-title::after {
+content: "";
+position: absolute;
+bottom: 0;
+left: 0;
+width: 50px;
+height: 2px;
+background: var(--neon-pink);
+}
+
+.neon-links li {
+margin-bottom: 15px;
+position: relative;
+padding-left: 25px;
+}
+
+.neon-bullet {
+position: absolute;
+left: 0;
+top: 50%;
+transform: translateY(-50%);
+width: 12px;
+height: 12px;
+background: var(--neon-pink);
+border-radius: 50%;
+box-shadow: 0 0 5px var(--neon-pink);
+transition: all 0.3s ease;
+}
+
+.neon-links a {
+color: #fff;
+text-decoration: none;
+transition: all 0.3s;
+display: inline-block;
+}
+
+.neon-links a:hover {
+color: var(--neon-blue);
+padding-left: 5px;
+}
+
+.neon-links a:hover .neon-bullet {
+background: var(--neon-blue);
+box-shadow: 0 0 8px var(--neon-blue);
+}
+
+.neon-footer-bottom {
+background: rgba(0,0,0,0.3);
+border-top: 1px solid rgba(76, 201, 240, 0.2);
+font-size: 0.9rem;
+}
+
+/* Геометрические элементы */
+.geometric-shape {
+position: absolute;
+opacity: 0.1;
+z-index: -1;
+}
+
+.shape-triangle {
+width: 0;
+height: 0;
+border-left: 50px solid transparent;
+border-right: 50px solid transparent;
+border-bottom: 100px solid var(--neon-blue);
+top: 10%;
+right: 5%;
+animation: float 8s ease-in-out infinite;
+}
+
+.shape-circle {
+width: 80px;
+height: 80px;
+border-radius: 50%;
+background: var(--neon-pink);
+bottom: 15%;
+left: 10%;
+animation: pulse 6s ease-in-out infinite;
+}
+
+.shape-square {
+width: 60px;
+height: 60px;
+background: var(--neon-violet);
+transform: rotate(45deg);
+top: 40%;
+left: 20%;
+animation: rotate 10s linear infinite;
+}
+
+@keyframes float {
+0%, 100% { transform: translateY(0) rotate(0deg); }
+50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+@keyframes pulse {
+0%, 100% { transform: scale(1); }
+50% { transform: scale(1.2); }
+}
+
+@keyframes rotate {
+0% { transform: rotate(45deg); }
+100% { transform: rotate(405deg); }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+.neon-logo-lg {
+width: 50px;
+height: 50px;
+font-size: 1.5rem;
+}
+
+.main-content {
+padding: 20px 0;
+}
+
+.geometric-shape {
+display: none;
+}
+}
+/* Стили для формы */
+.neon-input, .neon-select, .neon-textarea {
+background-color: #1a1a2e;
+border: 1px solid #0ff;
+color: #fff;
+box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+}
+
+.neon-input:focus, .neon-select:focus, .neon-textarea:focus {
+background-color: #16213e;
+border-color: #0ff;
+color: #fff;
+box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+/* Стили для таблиц и карточек */
+.neon-table-container {
+background: rgba(26, 26, 46, 0.7);
+border-radius: 10px;
+padding: 20px;
+}
+
+.neon-badge {
+background: linear-gradient(145deg, #0ff, #0af);
+color: #000;
+font-weight: bold;
+}
+
+.neon-img {
+border: 2px solid #0ff;
+box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+max-height: 400px;
+}
+
+/* Стили для пагинации */
+.neon-pagination {
+background-color: #1a1a2e;
+color: #0ff;
+border: 1px solid #0ff;
+margin: 0 5px;
+}
+
+.neon-pagination:hover {
+background-color: #16213e;
+color: #fff;
+}
+
+.neon-pagination.active {
+background: linear-gradient(145deg, #0ff, #0af);
+color: #000;
+border: 1px solid #0ff;
+}
+/* static/css/components.css */
+.markdown-content {
+    line-height: 1.6;
+}
+.markdown-content h1, .markdown-content h2, .markdown-content h3 {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+.markdown-content ul, .markdown-content ol {
+    padding-left: 2em;
+}
+/* Стили для невалидных полей */
+.neon-form .is-invalid {
+    border-color: #ff0 !important;
+    box-shadow: 0 0 10px rgba(255, 255, 0, 0.5) !important;
+}
+
+.error-message {
+    color: #ff0;
+    font-size: 0.9em;
+    margin-top: 0.25rem;
+}
+.btn-telegram {
+  background-color: #0088cc;
+  color: white;
+}
+
+.btn-telegram:hover {
+  background-color: #0077b5;
+  color: white;
+}
+
+/* Badge colors for note types */
+.badge.bg-personal { background-color: #6c757d; }
+.badge.bg-work { background-color: #0d6efd; }
+.badge.bg-defect { background-color: #ffc107; color: #000; }
+.badge.bg-defect_statement { background-color: #dc3545; }
+
+/* Стили для иконок и кнопок */
+.btn-telegram {
+  background-color: #0088cc;
+  color: white;
+  border: none;
+}
+
+.btn-telegram:hover {
+  background-color: #0077b5;
+  color: white;
+}
+
+.content-block {
+  white-space: pre-line;
+  line-height: 1.6;
+}
+
+/* Адаптивные отступы */
+@media (max-width: 768px) {
+  .card-footer .btn {
+    margin-bottom: 10px;
+    width: 100%;
+  }
+
+  .card-footer .d-flex {
+    flex-direction: column;
+  }
+
+.btn-telegram {
+    background-color: #0088cc;
+    color: white;
+}
+.btn-telegram:hover {
+    background-color: #0077b5;
+    color: white;
+}
+/* Стили для кнопок разных типов */
+.neon-btn-personal {
+    background: linear-gradient(45deg, #6f42c1, #a370f3);
+    border-color: #6f42c1;
+}
+
+.neon-btn-work {
+    background: linear-gradient(45deg, #20c997, #3be8b0);
+    border-color: #20c997;
+}
+
+.neon-btn-defect {
+    background: linear-gradient(45deg, #fd7e14, #ffab5c);
+    border-color: #fd7e14;
+}
+
+.neon-btn-statement {
+    background: linear-gradient(45deg, #dc3545, #ff6b7f);
+    border-color: #dc3545;
+}
+
+/* Анимации при наведении */
+.neon-btn-personal:hover {
+    box-shadow: 0 0 15px #6f42c1;
+}
+
+.neon-btn-work:hover {
+    box-shadow: 0 0 15px #20c997;
+}
+
+.neon-btn-defect:hover {
+    box-shadow: 0 0 15px #fd7e14;
+}
+
+.neon-btn-statement:hover {
+    box-shadow: 0 0 15px #dc3545;
+}
+.bg-purple { background: #6f42c1; }
+.bg-green { background: #20c997; }
+.bg-orange { background: #fd7e14; }
+.bg-red { background: #dc3545; }
+
+.neon-title {
+    text-shadow: 0 0 5px currentColor;
+}

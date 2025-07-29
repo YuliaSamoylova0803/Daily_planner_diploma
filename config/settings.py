@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     "users",
     "notes",
     "rest_framework",
-    'rest_framework_simplejwt',
+    "rest_framework_simplejwt",
     "drf_yasg",
     "corsheaders",
 ]
@@ -82,14 +82,14 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
         # 'rest_framework_simplejwt.authentication.JWTAuthentication',  # Раскомментируйте если нужно JWT
     ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ]
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
 }
 
 # Database
@@ -101,7 +101,7 @@ DATABASES = {
         "NAME": os.getenv("DB_NAME"),
         "USER": os.getenv("DB_USER"),
         "PASSWORD": os.getenv("DB_PASSWORD"),
-        "HOST": "localhost",  # db для docker compose
+        "HOST": "db",  # db для docker compose
         "PORT": "5432",
     }
 }
@@ -142,16 +142,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 # Настройки статических файлов
-STATIC_URL = '/static/'
-
-if DEBUG:
-    # Development - используем исходные файлы
-    STATICFILES_DIRS = [
-        os.path.join(BASE_DIR, 'static_dev'),
-    ]
-else:
-    # Production - собираем в отдельную папку
-    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# Замените блок статики на:
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")  # Всегда определяем
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static_dev")]  # Для разработки
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -178,7 +172,7 @@ AUTH_USER_MODEL = "users.User"
 
 LOGIN_REDIRECT_URL = "notes:base"
 LOGOUT_REDIRECT_URL = "notes:base"
-LOGIN_URL = reverse_lazy('users:login')
+LOGIN_URL = reverse_lazy("users:login")
 
 LOGGING = {
     "version": 1,
@@ -207,7 +201,7 @@ TELEGRAM_TOKEN = "7457606254:AAHGfjZ8rvFCLkNDJRxSoeGuj6hUcydpMGQ"
 TELEGRAM_CHAT_ID = "1635212282"
 
 # Для корректной работы за прокси
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
 
 CORS_ALLOW_ALL_ORIGINS = True  # Для разработки - разрешает все домены
@@ -219,10 +213,4 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 # Настройки для Swagger
-SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'Basic': {
-            'type': 'basic'
-        }
-    }
-}
+SWAGGER_SETTINGS = {"SECURITY_DEFINITIONS": {"Basic": {"type": "basic"}}}

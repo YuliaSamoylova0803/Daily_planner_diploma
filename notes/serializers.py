@@ -7,7 +7,7 @@ from .models import Note, DefectImage, DefectStatement
 class DefectImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = DefectImage
-        fields = '__all__'
+        fields = "__all__"
 
 
 class NoteSerializer(serializers.ModelSerializer):
@@ -16,9 +16,9 @@ class NoteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Note
-        fields = '__all__'
+        fields = "__all__"
         extra_kwargs = {
-            'note_type': {'choices': ['personal', 'work', 'defect', 'statement']}
+            "note_type": {"choices": ["personal", "work", "defect", "statement"]}
         }
 
 
@@ -27,4 +27,4 @@ class DefectStatementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DefectStatement
-        fields = '__all__'
+        fields = "__all__"
