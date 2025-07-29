@@ -143,11 +143,15 @@ USE_TZ = True
 
 # Настройки статических файлов
 STATIC_URL = '/static/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static') # Для collectstatic
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),  # Указывает на папку с исходными статическими файлами
-]
+if DEBUG:
+    # Development - используем исходные файлы
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static_dev'),
+    ]
+else:
+    # Production - собираем в отдельную папку
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
