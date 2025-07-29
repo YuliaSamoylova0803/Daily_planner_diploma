@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "users",
     "notes",
     "rest_framework",
+    'rest_framework_simplejwt',
     "drf_yasg",
     "corsheaders",
 ]
@@ -80,12 +81,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-# REST_FRAMEWORK = {
-#     "DEFAULT_AUTHENTICATION_CLASSES": (
-#         "rest_framework_simplejwt.authentication.JWTAuthentication",
-#         # Другие классы аутентификации при необходимости
-#     ),
-# }
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',  # Раскомментируйте если нужно JWT
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -208,3 +213,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "https://ваш-продакшен-домен.com",
 ]
+
+# Настройки для Swagger
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
+            'type': 'basic'
+        }
+    }
+}
