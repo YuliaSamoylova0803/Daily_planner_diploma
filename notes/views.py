@@ -1,6 +1,7 @@
 import logging
 from io import BytesIO
-
+from rest_framework import viewsets
+from .serializers import NoteSerializer, DefectStatementSerializer
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import FileResponse
@@ -50,6 +51,14 @@ class BaseView(TemplateView):
             }
         )
         return context
+
+
+class NoteViewSet(viewsets.ModelViewSet):
+    queryset = Note.objects.all()
+    serializer_class = NoteSerializer
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
 
 
 class NoteListView(LoginRequiredMixin, ListView):
@@ -108,12 +117,12 @@ class NoteDetailView(LoginRequiredMixin, DetailView):
 
 class NoteCreateView(LoginRequiredMixin, CreateView):
     """
-    Представление для создания новой заметки с автоматическим выбором формы.
+    Создание заметки с автоматическим выбором формы
 
     Особенности:
-    - Определяет тип записи из GET-параметра (note_type)
-    - Использует фабрику форм get_note_form_class для выбора нужной формы
-    - Автоматически устанавливает пользователя и тип записи
+        - Определяет тип записи из GET-параметра
+        - Автоматически устанавливает пользователя
+        - Перенаправляет на разные страницы после создания
     """
 
     model = Note
@@ -263,49 +272,9 @@ class DefectImageCreateView(CreateView):
         return super().form_valid(form)
 
 
-# class AddImagesView(LoginRequiredMixin, UpdateView):
-#     """
-#     Представление для добавления изображений к записи.
-#
-#     Особенности:
-#     - Работает только с записями типа 'defect' и 'defect_statement'
-#     - Использует отдельную форму для загрузки изображений
-#     """
-#     model = Note
-#     template_name = "notes/add_images.html"
-#     fields = []
-#
-#     def get_queryset(self):
-#         """Ограничивает доступ только к записям текущего пользователя"""
-#         return Note.objects.filter(
-#             user=self.request.user,
-#             note_type__in=['defect', 'defect_statement']
-#         )
-#
-#     def get_context_data(self, **kwargs):
-#         """Добавляет в контекст форму для загрузки изображений"""
-#         context = super().get_context_data(**kwargs)
-#         context['images'] = self.object.images.all()
-#         return context
-#
-#     def post(self, request, *args, **kwargs):
-#         """Обработка загрузки изображений"""
-#         self.object = self.get_object()
-#         image_form = NoteImageForm(request.POST, request.FILES)
-#
-#         if image_form.is_valid():
-#             image = image_form.save(commit=False)
-#             image.note = self.object
-#             image.save()
-#             messages.success(request, "Изображение успешно добавлено!")
-#             return redirect('notes:add_images', pk=self.object.pk)
-#
-#         messages.error(request, "Ошибка при загрузке изображения")
-#         return self.render_to_response(
-#             self.get_context_data(image_form=image_form))
-#
-#     def get_success_url(self):
-#         return reverse_lazy('notes:add_images', kwargs={'pk': self.object.pk})
+class DefectStatementViewSet(viewsets.ModelViewSet):
+    queryset = DefectStatement.objects.all()
+    serializer_class = DefectStatementSerializer
 
 
 class DefectStatementCreateView(LoginRequiredMixin, CreateView):
