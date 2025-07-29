@@ -62,7 +62,17 @@ class BaseDocumentGenerator:
 
 
 class DefectStatementGenerator(BaseDocumentGenerator):
-    """Генератор дефектных ведомостей в формате Word"""
+    """
+    Генератор дефектных ведомостей в формате DOCX
+
+    Пример использования:
+    >>> generator = DefectStatementGenerator(note)
+    >>> doc_buffer = generator.generate()
+
+    Attributes:
+        note (Note): Объект заметки с типом 'defect_statement'
+        doc (Document): Объект документа Word
+    """
 
     def validate_note_type(self):
         """Проверка, что заметка является дефектной ведомостью"""
@@ -146,7 +156,13 @@ class DefectStatementGenerator(BaseDocumentGenerator):
 
 
 class DocumentService:
-    """Сервис для работы с документами"""
+    """
+    Сервис для работы с файлами документов
+
+    Static Methods:
+        save_defect_statement(note): Сохраняет ведомость в файл
+        generate_defect_statement(note): Генерирует и возвращает файл
+    """
 
     @staticmethod
     def save_defect_statement(note) -> str:
@@ -182,7 +198,17 @@ class DocumentService:
 
 
 class TelegramNotificationService:
-    """Сервис для отправки уведомлений в Telegram"""
+    """
+    Сервис для отправки уведомлений в Telegram
+
+    Требует настройки в settings.py:
+    - TELEGRAM_TOKEN: токен бота
+    - TELEGRAM_CHAT_ID: ID чата по умолчанию
+
+    Пример использования:
+    >>> service = TelegramNotificationService()
+    >>> success = service.send_notification(note)
+    """
 
     def __init__(self):
         self.token = getattr(settings, "TELEGRAM_TOKEN", "")
