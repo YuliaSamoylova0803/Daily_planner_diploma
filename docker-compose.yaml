@@ -20,14 +20,20 @@ services:
     ports:
       - "6379:6379"
     healthcheck:
-      test: redis-cli ping
-      interval: 1s
-      timeout: 1s
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
       retries: 5
 
   backend:
-    build: .
-    command: bash -c "python manage.py migrate && python manage.py collectstatic -c --no-input && python manage.py runserver 0.0.0.0:8000"
+    build:
+      context: .
+      args:
+        DJANGO_ENV: ${DJANGO_ENV:-development}
+    command: >
+      bash -c "python manage.py migrate &&
+      python manage.py collectstatic --noinput &&
+      python manage.py runserver 0.0.0.0:8000"
     env_file: .env
     environment:
       POSTGRES_HOST: db
@@ -37,25 +43,29 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    ports:
-      - "8080:8000"
-    volumes:
-      - django_static:/app/static
-
+#    ports:
+#      - "8000:8000"
+#    volumes:
+#      - ./static:/app/static  # Для разработки (STATICFILES_DIRS)
+#      - static_volume:/app/staticfiles  # Для production (STATIC_ROOT)
+#      - ./media:/app/media
+#      - .:/app
 
 
   web:
-    image: nginx:1.19.3
+    image: nginx:1.19.3-alpine
     ports:
       - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./static:/usr/share/nginx/html/static  # Только production статика
+      - ./media:/usr/share/nginx/html/media
     depends_on:
       backend:
-        condition: service_started
-    volumes:
-#      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - django_static:/usr/share/nginx/html/static/
+        condition: service_healthy
+
 
 volumes:
-  static_volume: {}
-  django_static: {}
-  pg_data: {}
+  pg_data:
+  static:
+  media:
