@@ -1,4 +1,5 @@
-from django.http import FileResponse
+from django.contrib.auth.decorators import login_required
+from django.http import FileResponse, JsonResponse
 from drf_yasg import openapi
 
 from rest_framework.generics import get_object_or_404
@@ -11,6 +12,10 @@ from .services import (
     DefectStatementGenerator,
     TelegramNotificationService,
 )
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+from .models import DefectStatement
+from .services import send_to_telegram
 
 
 @swagger_auto_schema(
@@ -71,6 +76,21 @@ def send_telegram_notification(request, pk):
     if success:
         return Response({"status": "Уведомление отправлено"})
     return Response({"error": "Ошибка отправки"}, status=500)
+
+
+@login_required
+@require_POST
+@csrf_exempt  # Для упрощения, в production используйте правильную CSRF-защиту
+def send_to_telegram_api(request, pk):
+    try:
+        statement = DefectStatement.objects.get(pk=pk)
+        success = send_to_telegram(statement)
+
+        return JsonResponse(
+            {"success": success, "error": None if success else "Ошибка отправки"}
+        )
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 # api = NinjaAPI(
