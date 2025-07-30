@@ -1,7 +1,5 @@
 from django.urls import path
-
 from notes.apps import NotesConfig
-
 from .views import (
     BaseView,
     DefectImageCreateView,
@@ -16,8 +14,9 @@ from .views import (
     download_statement,
     send_to_telegram_view,
 )
+from .api import send_to_telegram_api  # Импортируем новую API view
 
-app_name = NotesConfig.name  # или можно просто указать app_name = 'notes'
+app_name = NotesConfig.name
 
 urlpatterns = [
     path("", BaseView.as_view(), name="base"),
@@ -33,6 +32,12 @@ urlpatterns = [
     ),
     path("<int:pk>/download/", download_statement, name="download_document"),
     path("<int:pk>/send_telegram/", send_to_telegram_view, name="send_to_telegram"),
+    # Новый API endpoint для AJAX-запросов
+    path(
+        "api/send-to-telegram/<int:pk>/",
+        send_to_telegram_api,
+        name="send_to_telegram_api",
+    ),
     # Специальные URL для создания конкретных типов записей
     path(
         "personal/create/",
@@ -58,7 +63,7 @@ urlpatterns = [
         {"note_type": "statement"},
         name="create_statement",
     ),
-    # Новые URL для дефектных ведомостей (добавляем в конец)
+    # URL для дефектных ведомостей
     path(
         "defect-statements/",
         DefectStatementListView.as_view(),
@@ -78,10 +83,5 @@ urlpatterns = [
         "defect-statements/<int:pk>/download/",
         download_statement,
         name="defect_statement_download",
-    ),
-    path(
-        "<int:note_id>/add-defect-image/",
-        DefectImageCreateView.as_view(),
-        name="add_defect_image",
     ),
 ]
