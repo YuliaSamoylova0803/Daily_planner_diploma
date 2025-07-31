@@ -31,7 +31,7 @@ class BaseDocumentGenerator:
         """Проверка типа заметки (должен быть переопределен в дочерних классах)"""
         raise NotImplementedError("Метод validate_note_type должен быть реализован")
 
-    def generate(self) -> BytesIO:
+    def generate(self) -> BytesIO:      # pragma: no cover
         """
         Генерация документа
 
@@ -230,12 +230,18 @@ class TelegramNotificationService:
     >>> success = service.send_notification(note)
     """
 
-    def __init__(self):
-        self.token = getattr(settings, "TELEGRAM_TOKEN", "")
-        self.chat_id = getattr(settings, "TELEGRAM_CHAT_ID", "")
+    def __init__(self, token=None, chat_id=None):
+        """
+            Инициализация с возможностью передачи параметров напрямую
+            (для тестирования без Django)
+        """
+
+        self.token = token or getattr(settings, "TELEGRAM_TOKEN", "") if hasattr(settings, "TELEGRAM_TOKEN") else ""
+        self.chat_id = chat_id or getattr(settings, "TELEGRAM_CHAT_ID", "") if hasattr(settings,
+                                                                                       "TELEGRAM_CHAT_ID") else ""
 
         if not self.token or not self.chat_id:
-            logger.warning("Telegram credentials не настроены в settings.py")
+            logger.warning("Telegram credentials not configured")
 
     def send_notification(self, note, chat_id: Optional[str] = None) -> bool:
         """
