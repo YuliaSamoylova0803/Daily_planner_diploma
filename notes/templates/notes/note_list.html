@@ -1,0 +1,38 @@
+{% extends 'notes/base.html' %}
+{% load note_tags %}
+
+{% block content %}
+<h2>Мои записи</h2>
+
+<div class="mb-3">
+  <div class="btn-group">
+    <a href="{% url 'notes:create_personal' %}" class="btn btn-outline-primary">Личная</a>
+    <a href="{% url 'notes:create_work' %}" class="btn btn-outline-secondary">Рабочая</a>
+    <a href="{% url 'notes:create_defect' %}" class="btn btn-outline-warning">Дефект</a>
+    <a href="{% url 'notes:create_statement' %}" class="btn btn-outline-danger">Ведомость</a>
+  </div>
+</div>
+
+<table class="table">
+  <!-- Заголовки таблицы -->
+  <tbody>
+    {% for note in notes %}
+    <tr>
+      <td>
+        <a href="{% url 'notes:detail' note.pk %}">{{ note.title }}</a>
+        <span class="badge bg-{{ note.get_badge_color }}">
+          {{ note.get_note_type_display }}
+        </span>
+      </td>
+      <td>
+        {% if note.note_type == 'defect_statement' %}
+          <a href="{% url 'notes:download_document' note.pk %}" class="btn btn-sm btn-info">
+            Скачать
+          </a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

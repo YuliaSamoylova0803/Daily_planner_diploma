@@ -1,0 +1,107 @@
+{% extends 'notes/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2 class="my-4 neon-title">
+        {% if object %}
+            Редактирование записи
+        {% else %}
+            Создание
+            <span class="badge
+                {% if view.get_note_type == 'personal' %}bg-purple
+                {% elif view.get_note_type == 'work' %}bg-green
+                {% elif view.get_note_type == 'defect' %}bg-orange
+                {% elif view.get_note_type == 'statement' %}bg-red
+                {% else %}bg-secondary{% endif %}">
+                {{ view.get_note_type_display|default:"новой" }}
+            </span>
+            записи
+        {% endif %}
+    </h2>
+
+    <div class="text-center mb-4">
+        {% if view.get_note_type == 'personal' %}
+            <i class="fas fa-book-open fa-3x text-purple"></i>
+        {% elif view.get_note_type == 'work' %}
+            <i class="fas fa-hard-hat fa-3x text-green"></i>
+        {% elif view.get_note_type == 'defect' %}
+            <i class="fas fa-exclamation-triangle fa-3x text-orange"></i>
+        {% elif view.get_note_type == 'statement' %}
+            <i class="fas fa-file-alt fa-3x text-red"></i>
+        {% endif %}
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Общие поля -->
+        <div class="mb-3">
+            <label for="{{ form.title.id_for_label }}" class="form-label">Заголовок</label>
+            {{ form.title }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.content.id_for_label }}" class="form-label">Содержание</label>
+            {{ form.content }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.image.id_for_label }}" class="form-label">Изображение</label>
+            {{ form.image }}
+        </div>
+
+        <!-- Динамические поля -->
+        {% if view.get_note_type == 'personal' %}
+            <div class="mb-3">
+                <label for="{{ form.mood.id_for_label }}" class="form-label">Настроение</label>
+                {{ form.mood }}
+            </div>
+            <div class="mb-3 form-check">
+                {{ form.is_private }}
+                <label for="{{ form.is_private.id_for_label }}" class="form-check-label">Приватная запись</label>
+            </div>
+        {% elif view.get_note_type == 'work' or view.get_note_type == 'defect' or view.get_note_type == 'statement' %}
+            <div class="mb-3">
+                <label for="{{ form.object_name.id_for_label }}" class="form-label">Название объекта</label>
+                {{ form.object_name }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.address.id_for_label }}" class="form-label">Адрес объекта</label>
+                {{ form.address }}
+            </div>
+        {% endif %}
+
+        {% if view.get_note_type == 'statement' %}
+            <div class="mb-3">
+                <label for="{{ form.statement_number.id_for_label }}" class="form-label">Номер ведомости</label>
+                {{ form.statement_number }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.approval_date.id_for_label }}" class="form-label">Дата утверждения</label>
+                <input type="date" name="approval_date" class="form-control"
+                       value="{{ form.approval_date.value|default:'' }}">
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.approved_by.id_for_label }}" class="form-label">Утвердил</label>
+                {{ form.approved_by }}
+            </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary mt-3">
+            {% if object %}Сохранить{% else %}Создать{% endif %}
+        </button>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация datepicker
+    $('input[type="date"]').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+        todayHighlight: true
+    });
+});
+</script>
+{% endblock %}

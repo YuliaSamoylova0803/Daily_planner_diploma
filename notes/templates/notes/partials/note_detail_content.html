@@ -1,0 +1,44 @@
+{% if note.note_type == 'personal' %}
+<div class="neon-card mb-3">
+    <div class="neon-card-header">Детали</div>
+    <div class="neon-card-body">
+        <p><strong>Настроение:</strong> {{ note.mood }}</p>
+        <p><strong>Статус:</strong> {% if note.is_private %}Приватная{% else %}Публичная{% endif %}</p>
+    </div>
+</div>
+{% elif note.note_type == 'work' %}
+<div class="neon-card mb-3">
+    <div class="neon-card-header">Информация о работе</div>
+    <div class="neon-card-body">
+        <p><strong>Объект:</strong> {{ note.object_name }}</p>
+        <p><strong>Подрядчик:</strong> {{ note.contractor }}</p>
+        <p><strong>Заказчик:</strong> {{ note.customer }}</p>
+        {% if note.document %}
+        <p><strong>Документ:</strong> <a href="{{ note.document.url }}" target="_blank" class="neon-link">Скачать</a></p>
+        {% endif %}
+    </div>
+</div>
+{% elif note.note_type == 'hidden_act' %}
+<div class="neon-card mb-3">
+    <div class="neon-card-header">Акт скрытых работ</div>
+    <div class="neon-card-body">
+        <p><strong>Номер акта:</strong> {{ note.act_number }}</p>
+        <p><strong>Дата проверки:</strong> {{ note.inspection_date|date:"d.m.Y" }}</p>
+        <p><strong>Объект:</strong> {{ note.object_name }}</p>
+        <p><strong>Адрес:</strong> {{ note.address }}</p>
+        <p><strong>Подрядчик:</strong> {{ note.contractor }}</p>
+        <p><strong>Заказчик:</strong> {{ note.customer }}</p>
+    </div>
+</div>
+{% elif note.note_type == 'defect_statement' %}
+<div class="neon-card mb-3">
+    <div class="neon-card-header">Дефектная ведомость</div>
+    <div class="neon-card-body">
+        <p><strong>Номер ведомости:</strong> {{ note.statement_number }}</p>
+        <p><strong>Дата утверждения:</strong> {{ note.approval_date|date:"d.m.Y" }}</p>
+        <p><strong>Утвердил:</strong> {{ note.approved_by }}</p>
+        <p><strong>Объект:</strong> {{ note.object_name }}</p>
+        <p><strong>Адрес:</strong> {{ note.address }}</p>
+    </div>
+</div>
+{% endif %}

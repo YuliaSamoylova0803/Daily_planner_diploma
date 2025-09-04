@@ -1,0 +1,122 @@
+{% extends 'notes/base.html' %}
+{% load note_tags %}
+{% load markdown_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2>{{ note.title }}</h2>
+            <span class="badge bg-{{ note.get_badge_color }}">
+                {{ note.get_note_type_display }}
+            </span>
+        </div>
+
+        <div class="card-body">
+            <p class="text-muted">
+                <i class="far fa-calendar-alt"></i> {{ note.created_at|date:"d.m.Y H:i" }}
+                {% if note.updated_at != note.created_at %}
+                (изменено: {{ note.updated_at|date:"d.m.Y H:i" }})
+                {% endif %}
+            </p>
+
+            <div class="content-block mb-4">
+                {{ note.content|linebreaks }}
+            </div>
+
+            {% if note.image %}
+            <div class="mb-4">
+                <img src="{{ note.image.url }}" class="img-fluid rounded" alt="Изображение записи">
+            </div>
+            {% endif %}
+            {% if note.is_defect and note.defect_images.all %}
+            <div class="mt-4">
+                <h5>Фотографии дефектов:</h5>
+                <div class="row">
+                    {% for image in note.defect_images.all %}
+                    <div class="col-md-4 mb-3">
+                        <img src="{{ image.image.url }}" class="img-fluid rounded" alt="{{ image.description }}">
+                        {% if image.description %}
+                        <p class="small text-muted mt-2">{{ image.description }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            <!-- Дополнительные поля в зависимости от типа записи -->
+            {% if note.note_type == 'personal' %}
+            <div class="mb-3">
+                <strong>Настроение:</strong> {{ note.mood }}
+            </div>
+            <div class="mb-3">
+                <strong>Приватность:</strong> {% if note.is_private %}Да{% else %}Нет{% endif %}
+            </div>
+            {% endif %}
+
+            {% if note.note_type == 'work' or note.note_type == 'defect' or note.note_type == 'defect_statement' %}
+            <div class="mb-3">
+                <strong>Объект:</strong> {{ note.object_name }}
+            </div>
+            <div class="mb-3">
+                <strong>Адрес:</strong> {{ note.address }}
+            </div>
+            {% endif %}
+
+            {% if note.note_type == 'defect_statement' %}
+            <div class="mb-3">
+                <strong>Номер ведомости:</strong> {{ note.statement_number }}
+            </div>
+            <div class="mb-3">
+                <strong>Дата утверждения:</strong> {{ note.approval_date|date:"d.m.Y" }}
+            </div>
+            <div class="mb-3">
+                <strong>Утвердил:</strong> {{ note.approved_by }}
+            </div>
+            {% endif %}
+            {% if note.note_type == 'defect' and note.defect_images.exists %}
+            <div class="mt-4">
+                <h5>Фотографии дефекта:</h5>
+                <div class="row">
+                    {% for image in note.defect_images.all %}
+                    <div class="col-md-4 mb-3">
+                        <img src="{{ image.image.url }}" class="img-fluid rounded" alt="{{ image.description }}">
+                        {% if image.description %}
+                        <p class="small text-muted mt-2">{{ image.description }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="card-footer">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <a href="{% url 'notes:update' note.pk %}" class="btn btn-outline-primary">
+                        <i class="fas fa-edit"></i> Редактировать
+                    </a>
+
+                    {% if note.note_type == 'defect_statement' %}
+                    <a href="{% url 'notes:download_document' note.pk %}" class="btn btn-outline-info ms-2">
+                        <i class="fas fa-file-download"></i> Скачать
+                    </a>
+                    <a href="{% url 'notes:send_to_telegram' note.pk %}" class="btn btn-telegram ms-2">
+                        <i class="fab fa-telegram"></i> Отправить
+                    </a>
+                    {% endif %}
+
+                    {% if note.is_defect %}
+                    <a href="{% url 'notes:add_defect_image' note_id=note.pk %}" class="btn btn-success ms-2">
+                        <i class="fas fa-plus"></i> Добавить фото дефекта
+                    </a>
+                    {% endif %}
+                </div>
+
+                <a href="{% url 'notes:delete' note.pk %}" class="btn btn-outline-danger">
+                    <i class="fas fa-trash-alt"></i> Удалить
+                </a>
+            </div>
+        </div>
+        {% endblock %}

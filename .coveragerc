@@ -1,0 +1,15 @@
+[run]
+source = notes          # Анализировать только код приложения notes
+omit =
+    */migrations/*      # Исключить миграции
+    */tests/*          # Исключить тесты
+    */admin.py         # Исключить админ-панель
+    */apps.py         # Исключить apps.py
+    */templatetags/*
+    *__init__.py
+
+[report]
+exclude_lines =
+    pragma: no cover   # Игнорировать строки с этим комментарием
+    def __str__       # Игнорировать методы __str__
+    raise NotImplementedError
